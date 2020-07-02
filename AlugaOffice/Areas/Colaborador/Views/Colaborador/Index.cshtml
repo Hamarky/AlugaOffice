@@ -1,0 +1,56 @@
+﻿@model X.PagedList.IPagedList<AlugaOffice.Models.Colaborador>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Colaboradores</h1>
+<hr />
+
+<a asp-action="Cadastrar" class="btn btn-primary">Cadastrar</a>
+<br />
+<br />
+
+@if (TempData["MSG_S"] != null)
+{
+    <p class="alert alert-success">@TempData["MSG_S"]</p>
+}
+
+
+@if (Model.Count > 0)
+{
+
+    <div class="table-responsive">
+        <table class="table table-hover table-dark">
+            <thead>
+                <tr>
+                    <th scope="col">Código</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">E-mail</th>
+                    <th scope="col">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (Colaborador colaborador in Model)
+                {
+
+                    <tr>
+                        <th scope="row">@colaborador.Id</th>
+                        <td>@colaborador.Nome</td>
+                        <td>@colaborador.Email</td>
+                        <td>
+                            <a asp-action="GerarSenha" asp-route-id="@colaborador.Id" class="btn btn-warning">Gerar Senha</a>
+                            <a asp-action="Atualizar" asp-route-id="@colaborador.Id" class="btn btn-info">Atualizar</a>
+                            <a asp-action="Excluir" asp-route-id="@colaborador.Id" class="btn btn-danger">Excluir</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @Html.PagedListPager((IPagedList)Model, pagina => Url.Action("Index", new { pagina }))
+}
+else
+{
+    <span><b>Nenhum Registro Cadastrado!</b></span>
+}

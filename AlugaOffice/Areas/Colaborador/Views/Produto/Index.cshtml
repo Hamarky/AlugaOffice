@@ -1,0 +1,80 @@
+﻿@model X.PagedList.IPagedList<AlugaOffice.Models.TodosProdutos.Produto>
+@{
+    ViewData["Title"] = "Index";
+    var pesquisa = Context.Request.Query["pesquisa"];
+}
+
+<h1>Produto</h1>
+<hr />
+<div class="row">
+    <aside class="col-sm-6">
+        <div id="code_register_1">
+            <div class="card">
+                <article class="card-body">
+                    <form method="get">
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <div class=""></div>
+                                <label for="pesquisa">Nome</label>
+                                <input type="search" name="pesquisa" id="pesquisa" value="@pesquisa" class="form-control">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-info" style="padding-left: 20px; padding-right: 20px">Pesquisar</button>
+                        <a class="divisor" role="separator">|</a>
+                        <a asp-action="Cadastrar" class="btn btn-primary" style="padding-left: 20px; padding-right: 20px">Cadastrar</a>
+                    </form>
+                </article>
+            </div>
+        </div>
+            
+    </aside>
+    
+</div>
+
+<br />
+
+@if (TempData["MSG_S"] != null)
+{
+    <p class="alert alert-success">@TempData["MSG_S"]</p>
+}
+
+
+@if (Model.Count > 0)
+{
+
+    <div class="table-responsive">
+        <table class="table table-hover table-dark">
+            <thead>
+                <tr>
+                    <th scope="col">Código</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Categoria</th>
+                    <th scope="col">Valor</th>
+                    <th scope="col">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (Produto produto in Model)
+                {
+
+                    <tr>
+                        <th scope="row">@produto.Id</th>
+                        <td>@produto.Nome</td>
+                        <td>@produto.CategoriaId</td>
+                        <td>@produto.Valor.ToString("N2")</td>
+                        <td>
+                            <a asp-action="Atualizar" asp-route-id="@produto.Id" class="btn btn-secondary">Atualizar</a>
+                            <a asp-action="Excluir" asp-route-id="@produto.Id" class="btn btn-danger">Excluir</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @Html.PagedListPager((IPagedList)Model, pagina => Url.Action("Index", new { pagina = pagina, pesquisa = pesquisa }))
+}
+else
+{
+    <span><b>Nenhum Registro Encontrado!</b></span>
+}

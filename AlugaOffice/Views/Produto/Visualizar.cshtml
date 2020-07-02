@@ -1,0 +1,78 @@
+﻿@model AlugaOffice.Models.TodosProdutos.Produto
+
+<main role="main" style="margin-top: 100px">
+    <div class="container">
+        <section id="product_detail">
+            <div id="code_prod_detail">
+                <div class="card">
+                    <div class="row no-gutters">
+                        <aside class="col-sm-5 border-right">
+                            <article class="gallery-wrap">
+                                <div class="img-big-wrap">
+                                    @if (Model.Imagens != null && Model.Imagens.Count > 0)
+                                    {
+
+                                        <div> <a href="@Model.Imagens.ElementAt(0).Caminho" data-fancybox><img src="@Model.Imagens.ElementAt(0).Caminho"></a></div>
+                                    }
+                                    else
+                                    {
+                                        <div> <a href="/img/icon-produto.png" data-fancybox><img src="/img/icon-produto.png"></a></div>
+                                    }
+                                </div>
+                                <div class="img-small-wrap">
+                                    @if (Model.Imagens != null && Model.Imagens.Count > 0)
+                                    {
+                                        @foreach (Imagem imagem in Model.Imagens)
+                                        {
+                                            <div class="item-gallery"> <img src="@imagem.Caminho"></div>
+
+                                        }
+                                    }
+
+                                </div>
+                            </article>
+                        </aside>
+                        <aside class="col-sm-7">
+                            <article class="p-5">
+                                <h3 class="title mb-3">@Model.Nome</h3>
+
+                                <div class="mb-3">
+                                    <var class="price h3 text-warning">
+                                        <span class="num">@Model.Valor.ToString("C")</span>
+                                    </var>
+                                </div>
+                                <dl>
+                                    <dt>Descrição</dt>
+                                    <dd>
+                                        <p>
+                                            @Model.Descricao
+                                        </p>
+                                    </dd>
+                                </dl>
+                                <dl class="row">
+                                    <dt class="col-sm-3">Peso</dt>
+                                    <dd class="col-sm-9">@Model.Peso Kg</dd>
+
+                                    <dt class="col-sm-3">Largura</dt>
+                                    <dd class="col-sm-9">@Model.Largura cm</dd>
+
+                                    <dt class="col-sm-3">Altura</dt>
+                                    <dd class="col-sm-9">@Model.Altura cm</dd>
+
+                                    <dt class="col-sm-3">Comprimento</dt>
+                                    <dd class="col-sm-9">@Model.Comprimento cm</dd>
+
+                                    <dt class="col-sm-3">Quantidade</dt>
+                                    <dd class="col-sm-9">@Model.Quantidade unid</dd>
+                                </dl>
+                                                            
+                                <a asp-controller="CarrinhoCompra" asp-action="AdicionarItem" asp-route-id="@Model.Id" 
+                                   class="btn  btn-outline-primary"> <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho</a>
+                            </article> <!-- card-body.// -->
+                        </aside> <!-- col.// -->
+                    </div> <!-- row.// -->
+                </div> <!-- card.// -->
+            </div> <!-- code-wrap.// -->
+        </section>
+    </div>
+</main>

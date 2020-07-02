@@ -1,0 +1,35 @@
+﻿@model AlugaOffice.Models.Colaborador
+@{
+    ViewData["Title"] = "Cadastrar";
+}
+
+<div class="row">
+    <aside class="col-sm-6">
+        <div id="code_register_1">
+            <div class="card">
+                <header class="card-header">
+                    <h3 class="card-title mt-2">Cadastrar</h3>
+                </header>
+                <article class="card-body">
+                    <form method="post">
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class=""></div>
+                                <label asp-for="Nome">Nome</label>
+                                <input asp-for="Nome" class="form-control">
+                                <span class="text-danger" asp-validation-for="Nome"></span>
+                            </div>
+                            <div class="form-row">
+                                <label asp-for="Email"></label>
+                                <input asp-for="Email" class="form-control">
+                                <span class="text-danger" asp-validation-for="Email"></span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cadastrar</button>
+                        <button asp-action="Index" class="btn btn-primary">Voltar</button>
+                    </form>
+                </article>
+            </div>
+        </div>
+    </aside>
+</div>
