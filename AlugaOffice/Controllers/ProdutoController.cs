@@ -10,18 +10,17 @@ namespace AlugaOffice.Controllers
 {
     public class ProdutoController : Controller
     {
-
         private ICategoriaRepository _categoriaRepository;
         private IProdutoRepository _produtoRepository;
+
         public ProdutoController(ICategoriaRepository categoriaRepository, IProdutoRepository produtoRepository)
         {
             _categoriaRepository = categoriaRepository;
-
             _produtoRepository = produtoRepository;
         }
 
-        [Route("Produto/Categoria/{slug}")]
         [HttpGet]
+        [Route("/Produto/Categoria/{slug}")]
         public IActionResult ListagemCategoria(string slug)
         {
             return View(_categoriaRepository.ObterCategoria(slug));

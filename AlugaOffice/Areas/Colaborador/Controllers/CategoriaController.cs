@@ -36,16 +36,18 @@ namespace AlugaOffice.Areas.Colaborador.Controllers
             ViewBag.Categorias = _categoriaRepository.ObterTodasCategorias().Select(a => new SelectListItem(a.Nome, a.Id.ToString()));
             return View();
         }
-
         [HttpPost]
-        public IActionResult Cadastrar([FromForm]Categoria categoria)
+        public IActionResult Cadastrar([FromForm] Categoria categoria)
         {
             if (ModelState.IsValid)
             {
                 _categoriaRepository.Cadastrar(categoria);
+
                 TempData["MSG_S"] = Mensagem.MSG_S001;
+
                 return RedirectToAction(nameof(Index));
             }
+
             ViewBag.Categorias = _categoriaRepository.ObterTodasCategorias().Select(a => new SelectListItem(a.Nome, a.Id.ToString()));
             return View();
         }
@@ -54,7 +56,7 @@ namespace AlugaOffice.Areas.Colaborador.Controllers
         public IActionResult Atualizar(int id)
         {
             var categoria = _categoriaRepository.ObterCategoria(id);
-            ViewBag.Categorias = _categoriaRepository.ObterTodasCategorias().Where(a=> a.Id != id).Select(a => new SelectListItem(a.Nome, a.Id.ToString()));
+            ViewBag.Categorias = _categoriaRepository.ObterTodasCategorias().Where(a => a.Id != id).Select(a => new SelectListItem(a.Nome, a.Id.ToString()));
             return View(categoria);
         }
 
@@ -64,19 +66,23 @@ namespace AlugaOffice.Areas.Colaborador.Controllers
             if (ModelState.IsValid)
             {
                 _categoriaRepository.Atualizar(categoria);
+
                 TempData["MSG_S"] = Mensagem.MSG_S001;
+
                 return RedirectToAction(nameof(Index));
             }
-
             ViewBag.Categorias = _categoriaRepository.ObterTodasCategorias().Where(a => a.Id != id).Select(a => new SelectListItem(a.Nome, a.Id.ToString()));
             return View();
         }
 
         [HttpGet]
+        [ValidateHttpReferer]
         public IActionResult Excluir(int id)
         {
             _categoriaRepository.Excluir(id);
+
             TempData["MSG_S"] = Mensagem.MSG_S002;
+
             return RedirectToAction(nameof(Index));
         }
     }

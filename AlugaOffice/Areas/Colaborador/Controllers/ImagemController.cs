@@ -18,7 +18,7 @@ namespace AlugaOffice.Areas.Colaborador.Controllers
 
             if (Caminho.Length > 0)
             {
-                return Ok(new { caminho = Caminho }); //JSON -> JavaScript -> JavaScript Object Notation
+                return Ok(new { caminho = Caminho });
             }
             else
             {

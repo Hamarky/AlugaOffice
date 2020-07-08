@@ -95,7 +95,6 @@ namespace AlugaOffice.Areas.Colaborador.Controllers
                 return View(produto);
             }
         }
-
         [HttpGet]
         [ValidateHttpReferer]
         public IActionResult Excluir(int id)

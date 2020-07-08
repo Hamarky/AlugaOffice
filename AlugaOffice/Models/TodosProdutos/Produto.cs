@@ -13,56 +13,56 @@ namespace AlugaOffice.Models.TodosProdutos
     {
         public int Id { get; set; }
 
-        [JsonIgnore]
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
+        [JsonIgnore]
         public string Nome { get; set; }
 
-        [JsonIgnore]
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
         [Display(Name = "Descrição")]
+        [JsonIgnore]
         public string Descricao { get; set; }
 
-        [JsonIgnore]
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
         [Display(Name = "Preço")]
-        public double Valor { get; set; }
-
         [JsonIgnore]
+        public decimal Valor { get; set; }
+
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
         [Range(0, 1000000, ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E006")]
+        [JsonIgnore]
         public int Quantidade { get; set; }
 
-        // Correios
-        [JsonIgnore]
         [Range(0.001, 30, ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E006")]
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
+        [JsonIgnore]
         public double Peso { get; set; }
 
-        [JsonIgnore]
         [Range(11, 105, ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E006")]
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
+        [JsonIgnore]
         public int Largura { get; set; }
 
-        [JsonIgnore]
         [Range(2, 105, ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E006")]
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
+        [JsonIgnore]
         public int Altura { get; set; }
 
-        [JsonIgnore]
         [Range(16, 105, ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E006")]
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
+        [JsonIgnore]
         public int Comprimento { get; set; }
 
-        [JsonIgnore]
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
         [Display(Name = "Categoria")]
+        [JsonIgnore]
         public int CategoriaId { get; set; }
 
-        [JsonIgnore]
         [ForeignKey("CategoriaId")]
+        [JsonIgnore]
         public virtual Categoria Categoria { get; set; }
 
         [JsonIgnore]
         public virtual ICollection<Imagem> Imagens { get; set; }
+
     }
 }

@@ -2,25 +2,257 @@
     MoverScrollOrdenacao();
     MudarOrdenacao();
     MudarImagemPrincipalProduto();
-    QuantidadeProduto();
+    MudarQuantidadeProdutoCarrinho();
+    AlteracoesVisuaisProdutoCarrinho();
+    AtualizarQuantidadeEValor();
+    MostrarMensagemDeErros();
+    AcaoCalcularFrete();
+    AJAXCalcularFrete(false);
+    AJAXBuscarCEP();
+    AJAXEnderecoEntregaCalcularFrete();
 });
-function QuantidadeProduto() {
-    $("#order .btn-light").click(function () {
 
-        var pai = $(this).parent().parent().parent().parent().parent().parent().parent().parent().parent().parent().parent().parent().parent().parent();
+function AJAXEnderecoEntregaCalcularFrete() {
+    $("input[name=endereco]").change(function () {
+        var cep = RemoverMascara($(this).parent().find("input[name=cep]").val());
 
-        if ($(this).hasClass("diminuir")) {
-            var id = pai.find("inputProdutoId").val();
-            alert("Clicou no botão - :" + id);
+        $.ajax({
+            type: "GET",
+            url: "/CarrinhoCompra/CalcularFrete?cepDestino=" + cep,
+            error: function (data) {
+                MostrarMensagemDeErro("Opps! Tivemos um erro ao obter o Frete..." + data.Message);
+                console.info(data);
+            },
+            success: function (data) {
+                for (var i = 0; i < data.listaValores.length; i++) {
+                    var tipoFrete = data.listaValores[i].tipoFrete;
+                    var valor = data.listaValores[i].valor;
+                    var prazo = data.listaValores[i].prazo;
 
-        }
-        if ($(this).hasClass("aumentar")) {
-            var id = pai.find("inputProdutoId").val();
-            alert("Clicou no botão + :" + id);
-        }
+                    $(".card-title")[i].innerHTML = tipoFrete;
+                    $(".card-text")[i].innerHTML("Prazo de " + prazo + " dias.");
+                    $(".card-footer .text-muted")[i].innerHTML("<input type=\"radio\" name=\"frete\" value=\"" + tipoFrete + "\" />" + numberToReal(valor));
+                }
+                /*
+                $(".container-frete").html(html);
+                $(".container-frete").find("input[type=radio]").change(function () {
 
+                    $.cookie("Carrinho.TipoFrete", $(this).val());
+                    $(".btn-continuar").removeClass("disabled");
+
+                    var valorFrete = parseFloat($(this).parent().find("input[type=hidden]").val());
+
+
+
+                    $(".frete").text(numberToReal(valorFrete));
+
+                    var subtotal = parseFloat($(".subtotal").text().replace("R$", "").replace(".", "").replace(",", "."));
+                    console.info("Subtotal: " + subtotal);
+
+                    var total = valorFrete + subtotal;
+
+                    $(".total").text(numberToReal(total));
+                });
+                */
+                //console.info(data);
+            }
+        });
     });
 }
+
+
+function AJAXBuscarCEP() {
+    $("#CEP").keyup(function () {
+        OcultarMensagemDeErro();
+
+        if ($(this).val().length == 10) {
+
+            var cep = RemoverMascara($(this).val());
+            $.ajax({
+                type: "GET",
+                url: "https://viacep.com.br/ws/" + cep + "/json/?callback=callback_name",
+                dataType: "jsonp",
+                error: function (data) {
+                    MostrarMensagemDeErro("Parece que os servidores estão offline!");
+                },
+                success: function (data) {
+                    if (data.erro == undefined) {
+                        $("#Estado").val(data.uf);
+                        $("#Cidade").val(data.localidade);
+                        $("#Endereco").val(data.logradouro);
+                        $("#Bairro").val(data.bairro);
+                    } else {
+                        MostrarMensagemDeErro("O CEP informado não existe!");
+                    }
+
+                }
+            });
+        }
+    });
+}
+
+function AcaoCalcularFrete() {
+    AJAXCalcularFrete(true);
+}
+
+function AJAXCalcularFrete(byButtom) {
+    $(".btn-continuar").addClass("disabled");
+    if (byButtom == false) {
+        if ($.cookie('Carrinho.CEP') != undefined) {
+            $(".cep").val();
+        }
+    }
+    if ($(".cep").length > 0) {
+        var cep = RemoverMascara($(".cep").val());
+
+        $.removeCookie("Carrinho.TipoFrete");
+
+        if (cep.length == 8) {
+            $.cookie('Carrinho.CEP', $("#CEP").val());
+            $(".container-frete").html("<img src='\\img\\spinner.gif' class='center' style='width: 60; height: 60px;' />");
+            $(".frete").text("R$ 0,00");
+            $(".total").text("R$ 0,00");
+
+            html = "";
+            $.ajax({
+                type: "GET",
+                url: "/CarrinhoCompra/CalcularFrete?cepDestino=" + cep,
+                error: function (data) {
+                    MostrarMensagemDeErro("Tivemos um erro ao obter essa informação " + data.Message);
+                    console.info(data);
+                },
+                success: function (data) {
+
+                    for (var i = 0; i < data.listaValores.length; i++) {
+                        var tipoFrete = data.listaValores[i].tipoFrete;
+                        var valor = data.listaValores[i].valor;
+                        var prazo = data.listaValores[i].prazo;
+
+                        html += "<dl class=\"dlist-align\"><dt><input type=\"radio\" name=\"frete\" value=\"" + tipoFrete + "\" /><input type=\"hidden\" name=\"valor\" value=\"" + valor + "\" /></dt><dd>" + tipoFrete + " - " + numberToReal(valor) + " <p>(" + prazo + " dias últeis)</p></dd></dl>";
+                    }
+                    $(".container-frete").html(html);
+                    $(".container-frete").find("input[type=radio]").change(function () {
+                        var valorFrete = parseFloat($(this).parent().find("input[type=hidden]").val());
+                        $.cookie("Carrinho.TipoFrete", $(this).val());
+                        $(".btn-continuar").removeClass("disabled");
+                        $(".frete").text(numberToReal(valorFrete));
+
+                        var subtotal = parseFloat($(".subtotal").text().replace("R$", "").replace(".", "").replace(",", "."));
+                        console.info("Subtotal: " + subtotal);
+
+                        var total = valorFrete + subtotal;
+
+                        $(".total").text(numberToReal(total))
+                    });
+                }
+            });
+        } else {
+            if (byButtom == true) {
+                $(".container-frete").html("");
+                MostrarMensagemDeErro("Campo CEP invalido!")
+            }
+        }
+    }
+}
+
+function numberToReal(numero) {
+    var numero = numero.toFixed(2).split('.');
+    numero[0] = "R$ " + numero[0].split(/(?=(?:...)*$)/).join('.');
+    return numero.join(',');
+}
+
+function MudarQuantidadeProdutoCarrinho() {
+    $("#order .btn-light").click(function () {
+        if ($(this).hasClass("diminuir")) {
+            OrquestradorDeAcoesProduto("diminuir", $(this));
+        }
+        if ($(this).hasClass("aumentar")) {
+            OrquestradorDeAcoesProduto("aumentar", $(this));
+        }
+    });
+}
+
+function OrquestradorDeAcoesProduto(operacao, botao) {
+    OcultarMensagemDeErro();
+    var pai = botao.parent().parent();
+
+    var produtoId = pai.find(".inputProdutoId").val();
+    var quantidadeEstoque = parseInt(pai.find(".inputQuantidadeEstoque").val());
+    var valorUnitario = parseFloat(pai.find(".inputValorUnitario").val().replace(",", "."));
+
+    var campoQuantidadeProdutoCarrinho = pai.find(".inputQuantidadeProdutoCarrinho");
+    var quantidadeProdutoCarrinhoAntiga = parseInt(campoQuantidadeProdutoCarrinho.val());
+
+    var campoValor = botao.parent().parent().parent().find(".price");
+
+    var produto = new ProdutoQuantidadeEValor(produtoId, quantidadeEstoque, valorUnitario,
+        quantidadeProdutoCarrinhoAntiga, 0, campoQuantidadeProdutoCarrinho, campoValor);
+
+    AlteracoesVisuaisProdutoCarrinho(produto, operacao);
+}
+
+function AlteracoesVisuaisProdutoCarrinho(produto, operacao) {
+    if (operacao == "aumentar") {
+        produto.quantidadeProdutoCarrinhoNova = produto.quantidadeProdutoCarrinhoAntiga + 1;
+
+        AtualizarQuantidadeEValor(produto);
+
+        AJAXComunicarAuteracaoQuantidadeProduto(produto)
+
+    } else if (operacao == "diminuir") {
+
+        produto.quantidadeProdutoCarrinhoNova = produto.quantidadeProdutoCarrinhoAntiga - 1;
+
+        AtualizarQuantidadeEValor(produto);
+
+        AJAXComunicarAuteracaoQuantidadeProduto(produto)
+    }
+}
+
+function AJAXComunicarAuteracaoQuantidadeProduto(produto) {
+    $.ajax({
+        type: "GET",
+        url: "/CarrinhoCompra/AlterarQuantidade?id=" + produto.produtoId + "&quantidade=" + produto.quantidadeProdutoCarrinhoNova,
+        error: function (data) {
+            MostrarMensagemDeErro(data.responseJSON.mensagem)
+            //Rollback
+            produto.quantidadeProdutoCarrinhoNova = produto.quantidadeProdutoCarrinhoAntiga;
+            AtualizarQuantidadeEValor(produto)
+        },
+        success: function () {
+            AJAXCalcularFrete();
+        }
+    });
+}
+
+function MostrarMensagemDeErro(mensagem) {
+    $(".alertaEstoque").css("display", "block");
+    $(".alertaEstoque").text(mensagem);
+}
+
+function OcultarMensagemDeErro() {
+    $(".alertaEstoque").css("display", "none");
+}
+
+function AtualizarQuantidadeEValor(produto) {
+    produto.campoQuantidadeProdutoCarrinho.val(produto.quantidadeProdutoCarrinhoNova);
+    var resultado = produto.valorUnitario * produto.quantidadeProdutoCarrinhoNova;
+    produto.campoValor.text(numberToReal(resultado));
+
+    AtualizarSubtotal();
+}
+
+function AtualizarSubtotal() {
+    var Subtotal = 0;
+    var TagPrice = $(".price");
+    TagPrice.each(function () {
+        var ValorReais = parseFloat($(this).text().replace("R$", "").replace(".", "").replace(" ", "").replace(",", "."));
+
+        Subtotal += ValorReais;
+    });
+    $(".subtotal").text(numberToReal(Subtotal));
+}
+
 function MudarImagemPrincipalProduto() {
     $(".img-small-wrap img").click(function () {
         var Caminho = $(this).attr("src");
@@ -64,4 +296,25 @@ function MudarOrdenacao() {
 
 
     });
+
+}
+
+class ProdutoQuantidadeEValor {
+    constructor(produtoId, quantidadeEstoque, valorUnitario, quantidadeProdutoCarrinhoAntiga, quantidadeProdutoCarrinhoNova,
+        campoQuantidadeProdutoCarrinho, campoValor) {
+
+        this.produtoId = produtoId;
+        this.quantidadeEstoque = quantidadeEstoque;
+        this.valorUnitario = valorUnitario;
+
+        this.quantidadeProdutoCarrinhoAntiga = quantidadeProdutoCarrinhoAntiga;
+        this.quantidadeProdutoCarrinhoNova = quantidadeProdutoCarrinhoNova;
+
+        this.campoQuantidadeProdutoCarrinho = campoQuantidadeProdutoCarrinho;
+        this.campoValor = campoValor;
+    }
+}
+
+function RemoverMascara(valor) {
+    return valor.replace(".", "").replace("-", "");
 }

@@ -1,6 +1,4 @@
-﻿
-
-@{
+﻿@{
     var TodasCategorias = (List<Categoria>)ViewData["TodasCategorias"];
     var CategoriaPai = (Categoria)ViewData["CategoriaPai"];
 
@@ -9,9 +7,9 @@
 
 @if (CategoriasFilho.Count() > 0)
 {
-    <li class="dropdown-submenu" >
-        <a class="dropdown-item" asp-controller="Produto" asp-action="ListagemCategoria" asp-route-slug="@CategoriaPai.Slug">@CategoriaPai.Nome</a>
-        <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-submenu">
+        <a class="dropdown-item" tabindex="-1" asp-controller="Produto" asp-action="ListagemCategoria" asp-route-slug="@CategoriaPai.Slug">@CategoriaPai.Nome</a>
+        <ul class="dropdown-menu">
             @foreach (var categoriaF in CategoriasFilho)
             {
                 @if (TodasCategorias.Where(a => a.CategoriaPaiId == categoriaF.Id).Count() > 0)

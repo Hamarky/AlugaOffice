@@ -13,13 +13,12 @@ namespace AlugaOffice.Repositories
 {
     public class CategoriaRepository : ICategoriaRepository
     {
-        private IConfiguration _config;
-        const int _registroPorPagina = 10;
-        private AlugaOfficeContext _banco;
+        IConfiguration _conf;
+        AlugaOfficeContext _banco;
         public CategoriaRepository(AlugaOfficeContext banco, IConfiguration configuration)
         {
             _banco = banco;
-            _config = configuration;
+            _conf = configuration;
         }
 
         public void Atualizar(Categoria categoria)
@@ -45,22 +44,12 @@ namespace AlugaOffice.Repositories
         {
             return _banco.Categorias.Find(Id);
         }
+
         public Categoria ObterCategoria(string Slug)
         {
-            return _banco.Categorias.Where(a=>a.Slug == Slug).FirstOrDefault();
+            return _banco.Categorias.Where(a => a.Slug == Slug).FirstOrDefault();
         }
 
-        public IPagedList<Categoria> ObterTodasCategorias(int? pagina)
-        {
-            int RegistroPorPagina = _config.GetValue<int>("RegistroPorPagina");
-            int NumeroPagina = pagina ?? 1;
-            return _banco.Categorias.Include(a => a.CategoriaPai).ToPagedList<Categoria>(NumeroPagina, RegistroPorPagina);
-        }
-
-        public IEnumerable<Categoria> ObterTodasCategorias()
-        {
-            return _banco.Categorias;
-        }
         private List<Categoria> Categorias;
         private List<Categoria> ListaCategoriaRecursiva = new List<Categoria>();
         public IEnumerable<Categoria> ObterCategoriasRecursivas(Categoria categoriaPai)
@@ -69,6 +58,7 @@ namespace AlugaOffice.Repositories
             {
                 Categorias = ObterTodasCategorias().ToList();
             }
+
             if (!ListaCategoriaRecursiva.Exists(a => a.Id == categoriaPai.Id))
             {
                 ListaCategoriaRecursiva.Add(categoriaPai);
@@ -85,6 +75,19 @@ namespace AlugaOffice.Repositories
             }
 
             return ListaCategoriaRecursiva;
+        }
+
+        public IPagedList<Categoria> ObterTodasCategorias(int? pagina)
+        {
+            int RegistroPorPagina = _conf.GetValue<int>("RegistroPorPagina");
+
+            int NumeroPagina = pagina ?? 1;
+            return _banco.Categorias.Include(a => a.CategoriaPai).ToPagedList<Categoria>(NumeroPagina, RegistroPorPagina);
+        }
+
+        public IEnumerable<Categoria> ObterTodasCategorias()
+        {
+            return _banco.Categorias;
         }
     }
 }

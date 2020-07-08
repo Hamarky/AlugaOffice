@@ -9,11 +9,18 @@
 {
     <div class="container" id="ordenacao-main">
         <div class="row">
-            <div class="offset-md-10 col-md-2">
+            <div class="col-md-4">
+                <form method="get">
+                    <div class="input-group">
+                        <input type="text" placeholder="Pesquisar" value="@pesquisa" class="form-control" name="pesquisa">
+                        <span class="input-group-append"> <button class="btn btn-primary"> <i class="fa fa-search"></i></button></span>
+                    </div>
+                </form>
+            </div>
+            <div class="offset-6 col-md-2">
                 <select id="ordenacao" class="form-control" asp-for="@ordenacao" asp-items="Model.ordenacao"></select>
                 <hr />
             </div>
-
         </div>
         <div class="row">
             @foreach (var produto in Model.lista)
@@ -38,7 +45,7 @@
                             </figcaption>
                             <div class="bottom-wrap">
                                 <a asp-controller="CarrinhoCompra" asp-action="AdicionarItem" asp-route-id="@produto.Id"
-                                class="btn btn-primary float-right"> <i class="fa fa-shopping-cart"></i> <span class="text"> Carrinho</span> </a>
+                                   class="btn btn-primary float-right"> <i class="fa fa-shopping-cart"></i> <span class="text"> Carrinho</span> </a>
                                 <div class="price-wrap h5">
                                     <span class="price-new">@produto.Valor.ToString("C")</span><!-- <del class="price-old">$1980</del> -->
                                 </div>

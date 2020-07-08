@@ -22,6 +22,7 @@ namespace AlugaOffice.Database
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Produto> Produtos { get; set; }
         public DbSet<Imagem> Imagens { get; set; }
+        public DbSet<EnderecoEntrega> EnderecosEntrega { get; set; }
 
     }
 }

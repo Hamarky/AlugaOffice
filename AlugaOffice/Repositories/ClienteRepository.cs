@@ -12,6 +12,7 @@ namespace AlugaOffice.Repositories
 {
     public class ClienteRepository : IClienteRepository
     {
+
         private IConfiguration _conf;
         private AlugaOfficeContext _banco;
 

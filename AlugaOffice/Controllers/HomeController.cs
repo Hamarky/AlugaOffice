@@ -18,20 +18,15 @@ namespace AlugaOffice.Controllers
 {
     public class HomeController : Controller
     {
-        private IClienteRepository _repositoryCliente;
         private INewsletterRepository _repositoryNewsletter;
-        private IProdutoRepository _produtoRepository;
-        private LoginCliente _loginCliente;
         private GerenciarEmail _gerenciarEmail;
+        private IProdutoRepository _produtoRepository;
 
         public HomeController(IProdutoRepository produtoRepository, IClienteRepository repositoryCliente, INewsletterRepository repositoryNewsletter, LoginCliente loginCliente, GerenciarEmail gerenciarEmail)
         {
-            _repositoryCliente = repositoryCliente;
             _repositoryNewsletter = repositoryNewsletter;
-            _produtoRepository = produtoRepository;
-            _loginCliente = loginCliente;
             _gerenciarEmail = gerenciarEmail;
-
+            _produtoRepository = produtoRepository;
         }
 
         [HttpGet]
@@ -60,7 +55,6 @@ namespace AlugaOffice.Controllers
         {
             return View();
         }
-
 
         public IActionResult Contato()
         {
@@ -96,70 +90,13 @@ namespace AlugaOffice.Controllers
                     ViewData["MSG_E"] = sb.ToString();
                     ViewData["CONTATO"] = contato;
                 }
-
-
             }
             catch (Exception e)
             {
                 ViewData["MSG_E"] = "Opps! Tivemos um erro, tente novamente mais tarde!";
-
-                //TODO - Implementar Log
             }
-
-
             return View("Contato");
         }
 
-
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult Login([FromForm] Cliente cliente)
-        {
-            Cliente clienteDB = _repositoryCliente.Login(cliente.Email, cliente.Senha);
-
-            if (clienteDB != null)
-            {
-                _loginCliente.Login(clienteDB);
-
-                return new RedirectResult(Url.Action(nameof(Painel)));
-            }
-            else
-            {
-                ViewData["MSG_E"] = "Usuário não encontrado, verifique o e-mail e senha digitado!";
-                return View();
-            }
-        }
-
-        [HttpGet]
-        [ClienteAutorizacao]
-        public IActionResult Painel()
-        {
-            return new ContentResult() { Content = "Este é o Painel do Cliente!" };
-        }
-
-        [HttpGet]
-        public IActionResult CadastroCliente()
-        {
-            return View();
-        }
-        [HttpPost]
-        public IActionResult CadastroCliente([FromForm] Cliente cliente)
-        {
-            if (ModelState.IsValid)
-            {
-                _repositoryCliente.Cadastrar(cliente);
-
-                TempData["MSG_S"] = "Cadastro realizado com sucesso!";
-
-                //TODO - Implementar redirecionamentos diferentes (Painel, Carrinho de Compras etc).
-                return RedirectToAction(nameof(CadastroCliente));
-            }
-            return View();
-        }
     }
 }

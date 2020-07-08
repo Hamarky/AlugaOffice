@@ -13,10 +13,10 @@
 
 
 
-    AjaxUploadImagemProduto();
+    AJAXUploadImagemProduto();
 });
 
-function AjaxUploadImagemProduto() {
+function AJAXUploadImagemProduto() {
     $(".img-upload").click(function () {
         $(this).parent().parent().find(".input-file").click();
     });

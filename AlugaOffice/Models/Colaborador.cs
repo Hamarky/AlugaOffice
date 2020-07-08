@@ -29,7 +29,7 @@ namespace AlugaOffice.Models
         public string Senha { get; set; }
 
         [NotMapped]
-        [Display(Name = "Confirmar Senha")]
+        [Display(Name = "Confirme a senha")]
         [Compare("Senha", ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E005")]
         public string ConfirmacaoSenha { get; set; }
 

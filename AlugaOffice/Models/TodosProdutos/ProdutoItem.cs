@@ -7,9 +7,7 @@ namespace AlugaOffice.Models.TodosProdutos
 {
     public class ProdutoItem : Produto
     {
-        public int QuantidadeProduto { get; set; }
-
-
+        public int QuantidadeProdutoCarrinho { get; set; }
 
     }
 }

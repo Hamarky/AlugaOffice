@@ -21,24 +21,21 @@ namespace AlugaOffice.Areas.Colaborador.Controllers
         {
             _clienteRepository = clienteRepository;
         }
-
         public IActionResult Index(int? pagina, string pesquisa)
         {
-            IPagedList<Cliente> clientes = _clienteRepository.ObterTodosClientes(pagina, pesquisa);
+            IPagedList<Models.Cliente> clientes = _clienteRepository.ObterTodosClientes(pagina, pesquisa);
             return View(clientes);
         }
 
         [ValidateHttpReferer]
         public IActionResult AtivarDesativar(int id)
         {
-            Cliente cliente = _clienteRepository.ObterCliente(id);
-
-            cliente.Situacao = (cliente.Situacao == SituacaoConstant.Ativado)
-                ? cliente.Situacao = SituacaoConstant.Desativado
-                : cliente.Situacao = SituacaoConstant.Ativado;
-
+            Models.Cliente cliente = _clienteRepository.ObterCliente(id);
+            cliente.Situacao = (cliente.Situacao == SituacaoConstant.Ativado) ? cliente.Situacao = SituacaoConstant.Desativado : cliente.Situacao = SituacaoConstant.Desativado;
             _clienteRepository.Atualizar(cliente);
+
             TempData["MSG_S"] = Mensagem.MSG_S001;
+
             return RedirectToAction(nameof(Index));
         }
     }

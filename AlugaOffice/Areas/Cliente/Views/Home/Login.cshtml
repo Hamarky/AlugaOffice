@@ -1,0 +1,35 @@
+﻿@model AlugaOffice.Models.Cliente
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<main role="main" style="margin-top: 80px">
+    <div class="form-group">
+        <div class="col-md-3 center">
+            <div class="text-center mb-4 mt-5">
+                <img class="mb-4" src="/img/logo.svg" alt="" width="300" height="100">
+            </div>
+            @if (ViewData["MSG_E"] != null)
+            {
+                <p class="alert alert-danger">@Html.Raw(ViewData["MSG_E"])</p>
+            }
+            <form method="post">
+                <div class="form-label-group">
+                    <input asp-for="Email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                </div>
+                <hr />
+                <div class="form-label-group">
+                    <input asp-for="Senha" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                </div>
+
+                <div class="checkbox mb-3">
+                    <hr />
+                </div>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Entrar</button>
+                <a asp-action="CadastroCliente" asp-controller="Home" asp-route-returnUrl="@Context.Request.Query["returnUrl"]" class="btn btn-lg btn-primary btn-block">Cadastre-se</a>
+            </form>
+        </div>
+    </div>
+</main>

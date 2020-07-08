@@ -44,7 +44,7 @@ namespace AlugaOffice.Repositories
 
         public Produto ObterProduto(int Id)
         {
-            return _banco.Produtos.Include(a => a.Imagens).OrderBy(a=> a.Nome).Where(a => a.Id == Id).FirstOrDefault();
+            return _banco.Produtos.Include(a => a.Imagens).OrderBy(a => a.Nome).Where(a => a.Id == Id).FirstOrDefault();
         }
 
         public IPagedList<Produto> ObterTodosProdutos(int? pagina, string pesquisa)
@@ -67,13 +67,13 @@ namespace AlugaOffice.Repositories
             {
                 bancoProduto = bancoProduto.OrderBy(a => a.Nome);
             }
-            if (ordenacao == "MAP")
-            {
-                bancoProduto = bancoProduto.OrderByDescending(a => a.Valor);
-            }
-            if (ordenacao == "MEP")
+            if (ordenacao == "ME")
             {
                 bancoProduto = bancoProduto.OrderBy(a => a.Valor);
+            }
+            if (ordenacao == "MA")
+            {
+                bancoProduto = bancoProduto.OrderByDescending(a => a.Valor);
             }
             if (categorias != null && categorias.Count() > 0)
             {

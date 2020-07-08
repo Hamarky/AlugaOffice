@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using EncryptStringSample;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +11,11 @@ namespace AlugaOffice.Libraries.Cookie
     public class Cookie
     {
         private IHttpContextAccessor _context;
-        public Cookie(IHttpContextAccessor context)
+        private IConfiguration _configuration;
+        public Cookie(IHttpContextAccessor context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         /*
@@ -23,8 +27,11 @@ namespace AlugaOffice.Libraries.Cookie
             Options.Expires = DateTime.Now.AddDays(7);
             Options.IsEssential = true;
 
-            _context.HttpContext.Response.Cookies.Append(Key, Valor, Options);
+            var ValorCrypt = StringCipher.Encrypt(Valor, _configuration.GetValue<string>("ChaveEncriptografada"));
+
+            _context.HttpContext.Response.Cookies.Append(Key, ValorCrypt, Options);
         }
+
         public void Atualizar(string Key, string Valor)
         {
             if (Existe(Key))
@@ -33,13 +40,22 @@ namespace AlugaOffice.Libraries.Cookie
             }
             Cadastrar(Key, Valor);
         }
+
         public void Remover(string Key)
         {
             _context.HttpContext.Response.Cookies.Delete(Key);
         }
-        public string Consultar(string Key)
+
+        public string Consultar(string Key, bool Cript = true)
         {
-            return _context.HttpContext.Request.Cookies[Key];
+            var valor = _context.HttpContext.Request.Cookies[Key];
+
+            if (Cript)
+            {
+                valor = StringCipher.Decrypt(valor, _configuration.GetValue<string>("ChaveEncriptografada"));
+            }
+            return valor;
+           
         }
 
 

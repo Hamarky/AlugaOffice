@@ -6,12 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\paginas\**" />
     <Compile Remove="wwwroot\resources\css\**" />
     <Compile Remove="wwwroot\resources\lib\bootstrap-icons\**" />
+    <Content Remove="wwwroot\paginas\**" />
     <Content Remove="wwwroot\resources\css\**" />
     <Content Remove="wwwroot\resources\lib\bootstrap-icons\**" />
+    <EmbeddedResource Remove="wwwroot\paginas\**" />
     <EmbeddedResource Remove="wwwroot\resources\css\**" />
     <EmbeddedResource Remove="wwwroot\resources\lib\bootstrap-icons\**" />
+    <None Remove="wwwroot\paginas\**" />
     <None Remove="wwwroot\resources\css\**" />
     <None Remove="wwwroot\resources\lib\bootstrap-icons\**" />
   </ItemGroup>
@@ -27,11 +31,19 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.1.0" />
+    <PackageReference Include="bootstrap" Version="4.5.0" />
+    <PackageReference Include="jQuery" Version="3.5.1" />
+    <PackageReference Include="jQuery.InputMask" Version="5.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    <PackageReference Include="Pagar.me" Version="2.6.15" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.4.*" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.4.*" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.4.*" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.4.*" />
     <PackageReference Include="X.PagedList.Mvc.Core" Version="7.6.0" />
   </ItemGroup>
 
@@ -271,13 +283,21 @@
     <None Include="wwwroot\resources\lib\dashboard\dashboard.js" />
     <None Include="wwwroot\resources\lib\feather\feather.js" />
     <None Include="wwwroot\resources\lib\holder\holder.min.js" />
+    <None Include="wwwroot\resources\lib\jquery-cookie\jquery-cookie.1.4.1.js" />
     <None Include="wwwroot\resources\lib\jquery3.3.1\jquery-3.3.1.min.js" />
     <None Include="wwwroot\resources\lib\popper1.14.6\popper.min.js" />
   </ItemGroup>
 
 
   <ItemGroup>
+    <Folder Include="Areas\Cliente\Data\" />
+    <Folder Include="Areas\Cliente\Models\" />
     <Folder Include="wwwroot\uploads\temp\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
   </ItemGroup>
 
 </Project>

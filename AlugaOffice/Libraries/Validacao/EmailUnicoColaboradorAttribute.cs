@@ -17,7 +17,7 @@ namespace AlugaOffice.Libraries.Validacao
 
             IColaboradorRepository _colaboradorRepository = (IColaboradorRepository)validationContext.GetService(typeof(IColaboradorRepository));
 
-            List<Colaborador> colaboradores = _colaboradorRepository.ObterColaboradoresPorEmail(Email);
+            List<Colaborador> colaboradores = _colaboradorRepository.ObterColaboradorPorEmail(Email);
 
             Colaborador objColaborador = (Colaborador)validationContext.ObjectInstance;
 

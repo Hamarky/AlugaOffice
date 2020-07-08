@@ -42,15 +42,36 @@ namespace AlugaOffice.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("Bairro")
+                        .IsRequired();
+
+                    b.Property<string>("CEP")
+                        .IsRequired()
+                        .HasMaxLength(10);
+
                     b.Property<string>("CPF")
                         .IsRequired();
 
+                    b.Property<string>("Cidade")
+                        .IsRequired();
+
+                    b.Property<string>("Complemento");
+
                     b.Property<string>("Email")
+                        .IsRequired();
+
+                    b.Property<string>("Endereco")
+                        .IsRequired();
+
+                    b.Property<string>("Estado")
                         .IsRequired();
 
                     b.Property<DateTime>("Nascimento");
 
                     b.Property<string>("Nome")
+                        .IsRequired();
+
+                    b.Property<string>("Numero")
                         .IsRequired();
 
                     b.Property<string>("Senha")
@@ -90,6 +111,44 @@ namespace AlugaOffice.Migrations
                     b.ToTable("Colaboradores");
                 });
 
+            modelBuilder.Entity("AlugaOffice.Models.EnderecoEntrega", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Bairro")
+                        .IsRequired();
+
+                    b.Property<string>("CEP")
+                        .IsRequired()
+                        .HasMaxLength(10);
+
+                    b.Property<string>("Cidade")
+                        .IsRequired();
+
+                    b.Property<int?>("ClienteId");
+
+                    b.Property<string>("Complemento");
+
+                    b.Property<string>("Endereco")
+                        .IsRequired();
+
+                    b.Property<string>("Estado")
+                        .IsRequired();
+
+                    b.Property<string>("Nome")
+                        .IsRequired();
+
+                    b.Property<string>("Numero")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.ToTable("EnderecosEntrega");
+                });
+
             modelBuilder.Entity("AlugaOffice.Models.Imagem", b =>
                 {
                     b.Property<int>("Id")
@@ -119,7 +178,7 @@ namespace AlugaOffice.Migrations
                     b.ToTable("NewsletterEmails");
                 });
 
-            modelBuilder.Entity("AlugaOffice.Models.Produto", b =>
+            modelBuilder.Entity("AlugaOffice.Models.TodosProdutos.Produto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -130,11 +189,13 @@ namespace AlugaOffice.Migrations
 
                     b.Property<int>("Comprimento");
 
-                    b.Property<string>("Descricao");
+                    b.Property<string>("Descricao")
+                        .IsRequired();
 
                     b.Property<int>("Largura");
 
-                    b.Property<string>("Nome");
+                    b.Property<string>("Nome")
+                        .IsRequired();
 
                     b.Property<double>("Peso");
 
@@ -156,15 +217,22 @@ namespace AlugaOffice.Migrations
                         .HasForeignKey("CategoriaPaiId");
                 });
 
+            modelBuilder.Entity("AlugaOffice.Models.EnderecoEntrega", b =>
+                {
+                    b.HasOne("AlugaOffice.Models.Cliente", "Cliente")
+                        .WithMany("EnderecosEntrega")
+                        .HasForeignKey("ClienteId");
+                });
+
             modelBuilder.Entity("AlugaOffice.Models.Imagem", b =>
                 {
-                    b.HasOne("AlugaOffice.Models.Produto", "Produto")
+                    b.HasOne("AlugaOffice.Models.TodosProdutos.Produto", "Produto")
                         .WithMany("Imagens")
                         .HasForeignKey("ProdutoId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("AlugaOffice.Models.Produto", b =>
+            modelBuilder.Entity("AlugaOffice.Models.TodosProdutos.Produto", b =>
                 {
                     b.HasOne("AlugaOffice.Models.Categoria", "Categoria")
                         .WithMany()

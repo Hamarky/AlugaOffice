@@ -115,6 +115,33 @@ namespace AlugaOffice.Libraries.Lang {
         }
         
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Não é permitido um valor menor que 1 nesse campo!.
+        /// </summary>
+        public static string MSG_E007 {
+            get {
+                return ResourceManager.GetString("MSG_E007", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Quantidade de produtos solicitada excede a quantidade em estoque!.
+        /// </summary>
+        public static string MSG_E008 {
+            get {
+                return ResourceManager.GetString("MSG_E008", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Não foi selecionado o tipo de envio!.
+        /// </summary>
+        public static string MSG_E009 {
+            get {
+                return ResourceManager.GetString("MSG_E009", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Registro Salvo com Sucesso!.
         /// </summary>
         public static string MSG_S001 {

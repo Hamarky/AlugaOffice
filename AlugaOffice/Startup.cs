@@ -23,6 +23,8 @@ using AlugaOffice.Libraries.Middleware;
 using AlugaOffice.Libraries.CarrinhoCompra;
 using AutoMapper;
 using AlugaOffice.Libraries.AutoMapper;
+using AlugaOffice.Libraries.Gerenciador.Frete;
+using WSCorreios;
 
 namespace AlugaOffice
 {
@@ -49,6 +51,7 @@ namespace AlugaOffice
             services.AddScoped<ICategoriaRepository, CategoriaRepository>();
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IImagemRepository, ImagemRepository>();
+            services.AddScoped<IEnderecoEntregaRepository, EnderecoEntregaRepository>();
 
 
 
@@ -65,9 +68,18 @@ namespace AlugaOffice
                 };
                 return smtp;
             });
+            services.AddScoped<CalcPrecoPrazoWSSoap>(option =>
+            {
+                var servico = new CalcPrecoPrazoWSSoapClient(CalcPrecoPrazoWSSoapClient.EndpointConfiguration.CalcPrecoPrazoWSSoap);
+                return servico;
+            });
             services.AddScoped<GerenciarEmail>();
             services.AddScoped<Libraries.Cookie.Cookie>();
-            services.AddScoped<CarrinhoCompra>();
+            services.AddScoped<CookieCarrinhoCompra>();
+            services.AddScoped<CookieFrete>();
+            services.AddScoped<WSCorreiosCalcularFrete>();
+            services.AddScoped<CalcularPacote>();
+
 
             services.Configure<CookiePolicyOptions>(options =>
             {
