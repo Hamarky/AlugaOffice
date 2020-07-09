@@ -16,12 +16,14 @@ function AJAXEnderecoEntregaCalcularFrete() {
     $("input[name=endereco]").change(function () {
         var cep = RemoverMascara($(this).parent().find("input[name=cep]").val());
 
+        $.cookie("Carrinho.Endereco", $(this).val(), { path: "/" });
+        
         $.ajax({
             type: "GET",
             url: "/CarrinhoCompra/CalcularFrete?cepDestino=" + cep,
             error: function (data) {
                 MostrarMensagemDeErro("Opps! Tivemos um erro ao obter o Frete..." + data.Message);
-                console.info(data);
+
             },
             success: function (data) {
                 for (var i = 0; i < data.listaValores.length; i++) {
@@ -29,41 +31,33 @@ function AJAXEnderecoEntregaCalcularFrete() {
                     var valor = data.listaValores[i].valor;
                     var prazo = data.listaValores[i].prazo;
 
-                    $(".card-title")[i].innerHTML = tipoFrete;
-                    $(".card-text")[i].innerHTML("Prazo de " + prazo + " dias.");
-                    $(".card-footer .text-muted")[i].innerHTML("<input type=\"radio\" name=\"frete\" value=\"" + tipoFrete + "\" />" + numberToReal(valor));
+                    $("#titulo")[i].innerHTML = tipoFrete;
+                    $("#prazoFrete")[i].innerHTML = "Prazo de " + prazo + " dias.";
+                    $("#valorFrete")[i].innerHTML = "<input type=\"radio\" name=\"frete\" value=\" " + tipoFrete + "\" id='" + tipoFrete + "' /> <strong><label for='" + tipoFrete + "'>" + numberToReal(valor) + "</label></strong>";
                 }
-                /*
-                $(".container-frete").html(html);
-                $(".container-frete").find("input[type=radio]").change(function () {
-
-                    $.cookie("Carrinho.TipoFrete", $(this).val());
-                    $(".btn-continuar").removeClass("disabled");
-
-                    var valorFrete = parseFloat($(this).parent().find("input[type=hidden]").val());
-
-
-
-                    $(".frete").text(numberToReal(valorFrete));
-
-                    var subtotal = parseFloat($(".subtotal").text().replace("R$", "").replace(".", "").replace(",", "."));
-                    console.info("Subtotal: " + subtotal);
-
-                    var total = valorFrete + subtotal;
-
-                    $(".total").text(numberToReal(total));
-                });
-                */
-                //console.info(data);
             }
         });
     });
 }
 
+function EnderecoEntregaCardsLoading() {
+    for (var i = 0; i < 2; i++) {
+        $("#prazoFrete")[i].innerHTML = "<br /> <img src='\\img\\spinner.gif' class='center' style='width: 60; height: 60px;' />";
+    }
+}
+function EnderecoEntregaCardsLimpar() {
+    for (var i = 0; i < 2; i++) {
+        $("#titulo")[i].innerHTML = "-";
+        $("#prazoFrete")[i].innerHTML = "-";
+        $("#valorFrete")[i].innerHTML = "-"
+    }
+}
 
 function AJAXBuscarCEP() {
     $("#CEP").keyup(function () {
         OcultarMensagemDeErro();
+
+
 
         if ($(this).val().length == 10) {
 
@@ -102,6 +96,8 @@ function AJAXCalcularFrete(byButtom) {
             $(".cep").val();
         }
     }
+
+
     if ($(".cep").length > 0) {
         var cep = RemoverMascara($(".cep").val());
 

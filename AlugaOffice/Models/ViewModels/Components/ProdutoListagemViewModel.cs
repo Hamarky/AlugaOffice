@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using X.PagedList;
 
-namespace AlugaOffice.Models.ViewModels
+namespace AlugaOffice.Models.ViewModels.Components
 {
     public class ProdutoListagemViewModel
     {

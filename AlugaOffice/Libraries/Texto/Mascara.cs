@@ -9,8 +9,16 @@ namespace AlugaOffice.Libraries.Texto
     {
         public static string Remover(string valor)
         {
-            return valor.Replace("(", "").Replace(")", "").Replace("-", "").Replace(".", "");
+            return valor.Replace("(", "").Replace(")", "").Replace("-", "").Replace(".", "").Replace("R$", "").Replace(",", "").Replace(" ", "");
         }
 
+        public static int ConverterValorPagarMe(decimal valor)
+        {
+            string valorString = valor.ToString("C");
+            valorString = Remover(valorString);
+
+            int valorInt = int.Parse(valorString);
+            return valorInt;
+        }
     }
 }

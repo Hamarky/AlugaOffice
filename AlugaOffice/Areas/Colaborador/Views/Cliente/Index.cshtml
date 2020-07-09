@@ -19,7 +19,7 @@
                                 <input type="search" name="pesquisa" id="pesquisa" value="@pesquisa" class="form-control">
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary"  style="padding-left: 20px; padding-right: 20px">Pesquisar</button>
+                        <button type="submit" class="btn btn-primary" style="padding-left: 20px; padding-right: 20px">Pesquisar</button>
                     </form>
                 </article>
             </div>
@@ -27,10 +27,8 @@
     </aside>
 </div>
 <br />
-@if (TempData["MSG_S"] != null)
-{
-    <p class="alert alert-success">@TempData["MSG_S"]</p>
-}
+
+@{await Html.RenderPartialAsync("~/Views/Shared/_Mensagem.cshtml");}
 
 
 @if (Model.Count > 0)

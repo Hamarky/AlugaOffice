@@ -11,10 +11,7 @@
             <div class="text-center mb-4 mt-5">
                 <img class="mb-4" src="/img/logo.svg" alt="" width="300" height="100">
             </div>
-            @if (ViewData["MSG_E"] != null)
-            {
-                <p class="alert alert-danger">@Html.Raw(ViewData["MSG_E"])</p>
-            }
+            @{await Html.RenderPartialAsync("~/Views/Shared/_Mensagem.cshtml");}
             <form method="post">
                 <div class="form-label-group">
                     <input asp-for="Email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>

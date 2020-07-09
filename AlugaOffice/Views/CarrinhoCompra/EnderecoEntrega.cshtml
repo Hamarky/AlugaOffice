@@ -1,6 +1,15 @@
 ﻿
 @{
     ViewData["Title"] = "EnderecoEntrega";
+
+    var produtos = (List<ProdutoItem>)ViewBag.Produtos;
+    decimal total = 0;
+
+    foreach (ProdutoItem produto in produtos)
+    {
+        decimal resultado = produto.Valor * produto.QuantidadeProdutoCarrinho;
+        total += resultado;
+    }
 }
 
 <main role="main" style="margin-top: 50px">
@@ -9,6 +18,9 @@
         <br />
         <div class="row">
             <div class="col-md-12">
+
+                @{await Html.RenderPartialAsync("~/Views/Shared/_Mensagem.cshtml");}
+
                 <table class="table table-hover">
                     <tbody>
                         <tr>
@@ -47,41 +59,10 @@
 
                     </tbody>
                 </table>
-
-
-
                 <div class="text-center">
                     <a asp-action="CadastroEnderecoEntrega" asp-controller="Home" asp-area="Cliente" asp-route-returnUrl="@Url.Action("EnderecoEntrega", "CarrinhoCompra", new { area = ""})" class="btn btn-outline-primary">Cadastrar novo endereço</a>
                 </div>
 
-                <br />
-                <div class="card-group col-md-12">
-                    <div class="card col-md-2">
-
-                        <div class="card-body">
-                                <img src="~/img/pac-correios-logo-1.png" class="card-img" alt="...">
-                            <p class="card-text">Dias.</p>
-                        </div>
-                        <div class="card-footer">
-                            <small class="text-muted">
-                                <input type="radio" name="frete" value="PAC" />
-                            </small>
-                        </div>
-                    </div>
-                    <div class="card col-md-2">
-
-                        <div class="card-body">
-                                <img src="~/img/sedex-correios-logo-1.png" class="card-img" alt="...">
-                            <p class="card-text">Dias.</p>
-                        </div>
-                        <div class="card-footer">
-                            <small class="text-muted">
-                                <input type="radio" name="frete" value="SEDEX" />
-                            </small>
-                        </div>
-                    </div>
-                </div>
-                <br />
                 <a asp-action="Index" asp-controller="Pagamento" class="btn btn-primary">Continuar</a>
             </div>
 

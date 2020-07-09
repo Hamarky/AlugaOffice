@@ -22,18 +22,25 @@ namespace AlugaOffice.Controllers
 {
     public class CarrinhoCompraController : BaseController
     {
-
-        private LoginCliente _loginCliente;
-        private IEnderecoEntregaRepository _enderecoEntregaRepository;
-        public CarrinhoCompraController(CookieCarrinhoCompra carrinhoCompra, IProdutoRepository produtoRepository,
-            IMapper mapper, WSCorreiosCalcularFrete wscorreios, CalcularPacote calcularPacote,
-            CookieFrete cookieValorPrazoFrete, LoginCliente loginCliente, IEnderecoEntregaRepository enderecoEntregaRepository)
-            : base(carrinhoCompra, produtoRepository, mapper, wscorreios,
-                calcularPacote, cookieValorPrazoFrete)
-        {
-            _loginCliente = loginCliente;
-            _enderecoEntregaRepository = enderecoEntregaRepository;
-        }
+        public CarrinhoCompraController(
+            LoginCliente loginCliente,
+            CookieCarrinhoCompra carrinhoCompra,
+            IEnderecoEntregaRepository enderecoEntregaRepository,
+            IProdutoRepository produtoRepository,
+            IMapper mapper,
+            WSCorreiosCalcularFrete wscorreios,
+            CalcularPacote calcularPacote,
+            CookieFrete cookieValorPrazoFrete)
+            : base(
+                  loginCliente,
+                  carrinhoCompra,
+                  enderecoEntregaRepository,
+                  produtoRepository,
+                  mapper,
+                  wscorreios,
+                  calcularPacote,
+                  cookieValorPrazoFrete)
+        { }
 
         public IActionResult Index()
         {
@@ -87,29 +94,37 @@ namespace AlugaOffice.Controllers
         {
             try
             {
-                List<ProdutoItem> produtos = CarregarProdutoDB();
-
-                List<Pacote> pacotes = _calcularPacote.CalcularPacotesDeProdutos(produtos);
-
-                ValorPrazoFrete valorPAC = await _wscorreios.CalcularFrete(cepDestino.ToString(), TipoFreteConstant.PAC, pacotes);
-                ValorPrazoFrete valorSEDEX = await _wscorreios.CalcularFrete(cepDestino.ToString(), TipoFreteConstant.SEDEX, pacotes);
-
-                List<ValorPrazoFrete> lista = new List<ValorPrazoFrete>();
-                if (valorPAC != null) lista.Add(valorPAC);
-                if (valorSEDEX != null) lista.Add(valorSEDEX);
-
-                StringMD5.MD5Hash(JsonConvert.SerializeObject(_cookieCarrinhoCompra.Consultar()));
-
-                var frete = new Frete()
+                Frete frete = _cookieFrete.Consultar().Where(a => a.CEP == cepDestino && a.CodCarrinho == GerarHash(_cookieCarrinhoCompra.Consultar())).FirstOrDefault();
+                if (frete != null)
                 {
-                    CEP = cepDestino,
-                    CodCarrinho = GerarHash(_cookieCarrinhoCompra.Consultar()),
-                    ListaValores = lista
-                };
+                    return Ok(frete);
+                }
+                else
+                {
 
-                _cookieFrete.Cadastrar(frete);
+                    List<ProdutoItem> produtos = CarregarProdutoDB();
+                    List<Pacote> pacotes = _calcularPacote.CalcularPacotesDeProdutos(produtos);
 
-                return Ok(frete);
+                    ValorPrazoFrete valorPAC = await _wscorreios.CalcularFrete(cepDestino.ToString(), TipoFreteConstant.PAC, pacotes);
+                    ValorPrazoFrete valorSEDEX = await _wscorreios.CalcularFrete(cepDestino.ToString(), TipoFreteConstant.SEDEX, pacotes);
+
+                    List<ValorPrazoFrete> lista = new List<ValorPrazoFrete>();
+                    if (valorPAC != null) lista.Add(valorPAC);
+                    if (valorSEDEX != null) lista.Add(valorSEDEX);
+
+                    StringMD5.MD5Hash(JsonConvert.SerializeObject(_cookieCarrinhoCompra.Consultar()));
+
+                    frete = new Frete()
+                    {
+                        CEP = cepDestino,
+                        CodCarrinho = GerarHash(_cookieCarrinhoCompra.Consultar()),
+                        ListaValores = lista
+                    };
+
+                    _cookieFrete.Cadastrar(frete);
+
+                    return Ok(frete);
+                }
             }
             catch (Exception e)
             {
@@ -123,6 +138,8 @@ namespace AlugaOffice.Controllers
 
             Cliente cliente = _loginCliente.GetCliente();
             IList<EnderecoEntrega> enderecos = _enderecoEntregaRepository.ObterTodosEnderecoEntregaCliente(cliente.Id);
+
+            ViewBag.Produtos = CarregarProdutoDB();
             ViewBag.Cliente = cliente;
             ViewBag.Enderecos = enderecos;
             return View();

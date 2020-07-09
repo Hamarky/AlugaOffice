@@ -1,5 +1,6 @@
 ﻿using AlugaOffice.Models;
 using AlugaOffice.Models.ViewModels;
+using AlugaOffice.Models.ViewModels.Components;
 using AlugaOffice.Repositories.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using System;

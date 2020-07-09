@@ -22,8 +22,11 @@ namespace AlugaOffice.Controllers.Base
         protected WSCorreiosCalcularFrete _wscorreios;
         protected CalcularPacote _calcularPacote;
         protected CookieFrete _cookieFrete;
-        public BaseController(CookieCarrinhoCompra carrinhoCompra, IProdutoRepository produtoRepository, IMapper mapper, 
-            WSCorreiosCalcularFrete wscorreios, CalcularPacote calcularPacote, CookieFrete cookieFrete)
+        protected IEnderecoEntregaRepository _enderecoEntregaRepository;
+        protected LoginCliente _loginCliente;
+        public BaseController(LoginCliente loginCliente, CookieCarrinhoCompra carrinhoCompra, 
+            IEnderecoEntregaRepository enderecoEntregaRepository, IProdutoRepository produtoRepository, 
+            IMapper mapper, WSCorreiosCalcularFrete wscorreios, CalcularPacote calcularPacote, CookieFrete cookieFrete)
         {
             _cookieCarrinhoCompra = carrinhoCompra;
             _produtoRepository = produtoRepository;
@@ -31,6 +34,8 @@ namespace AlugaOffice.Controllers.Base
             _wscorreios = wscorreios;
             _calcularPacote = calcularPacote;
             _cookieFrete = cookieFrete;
+            _enderecoEntregaRepository = enderecoEntregaRepository;
+            _loginCliente = loginCliente;
         }
         protected List<ProdutoItem> CarregarProdutoDB()
         {

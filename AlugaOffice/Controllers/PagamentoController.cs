@@ -1,48 +1,188 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AlugaOffice.Controllers.Base;
 using AlugaOffice.Libraries.CarrinhoCompra;
 using AlugaOffice.Libraries.Cookie;
 using AlugaOffice.Libraries.Filtro;
 using AlugaOffice.Libraries.Gerenciador.Frete;
+using AlugaOffice.Libraries.Gerenciador.Pagamento.PagarMe;
 using AlugaOffice.Libraries.Lang;
+using AlugaOffice.Libraries.Login;
+using AlugaOffice.Libraries.Texto;
+using AlugaOffice.Models;
 using AlugaOffice.Models.TodosProdutos;
+using AlugaOffice.Models.ViewModels.Pagamento;
 using AlugaOffice.Repositories.Contracts;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using PagarMe;
 
 namespace AlugaOffice.Controllers
 {
     public class PagamentoController : BaseController
     {
         private Cookie _cookie;
-        public PagamentoController(Cookie cookie, CookieCarrinhoCompra carrinhoCompra, IProdutoRepository produtoRepository, IMapper mapper, WSCorreiosCalcularFrete wscorreios, CalcularPacote calcularPacote, CookieFrete cookieValorPrazoFrete) : base(carrinhoCompra, produtoRepository, mapper, wscorreios, calcularPacote, cookieValorPrazoFrete)
+        private GerenciarPagarMe _gerenciarPagarMe;
+
+        public PagamentoController(
+            GerenciarPagarMe gerenciarPagarMe,
+            LoginCliente loginCliente,
+            Cookie cookie,
+            CookieCarrinhoCompra carrinhoCompra,
+            IEnderecoEntregaRepository enderecoEntregaRepository,
+            IProdutoRepository produtoRepository,
+            IMapper mapper,
+            WSCorreiosCalcularFrete wscorreios,
+            CalcularPacote calcularPacote,
+            CookieFrete cookieValorPrazoFrete)
+            : base(
+                  loginCliente,
+                  carrinhoCompra,
+                  enderecoEntregaRepository,
+                  produtoRepository,
+                  mapper,
+                  wscorreios,
+                  calcularPacote,
+                  cookieValorPrazoFrete)
         {
             _cookie = cookie;
+            _gerenciarPagarMe = gerenciarPagarMe;
         }
 
         [ClienteAutorizacao]
+        [HttpGet]
         public IActionResult Index()
         {
             var tipoFreteSelecionadoPeloUsuario = _cookie.Consultar("Carrinho.TipoFrete", false);
             if (tipoFreteSelecionadoPeloUsuario != null)
-            {/*
-                var frete = _cookieFrete.Consultar().Where(a => a.TipoFrete == tipoFreteSelecionadoPeloUsuario).FirstOrDefault();
+            {
+                var enderecoEntrega = ObterEndereco();
+                var carrinhoHash = GerarHash(_cookieCarrinhoCompra.Consultar());
+                int cep = int.Parse(Mascara.Remover(enderecoEntrega.CEP));
+                List<ProdutoItem> produtoItemCompleto = CarregarProdutoDB();
+                var frete = ObterFrete(cep.ToString());
 
-                if (frete != null)
+                var total = ObterValorTotalCompra(produtoItemCompleto, frete);
+                var parcelamento = _gerenciarPagarMe.CalcularPagamentoParcelado(total);
+
+                ViewBag.Frete = frete;
+                ViewBag.Produtos = produtoItemCompleto;
+                ViewBag.Parcelamentos = parcelamento.Select(a => new SelectListItem(
+                    String.Format(
+                        "{0}x {1} {2} - TOTAL: {3}",
+                        a.Numero, a.ValorPorParcela.ToString("C"), (a.Juros) ? "c/ juros" : "s/ juros", a.Valor.ToString("C")
+                    ),
+                    a.Numero.ToString()
+                )).ToList();
+
+                return View("Index");
+            }
+            TempData["MSG_E"] = Mensagem.MSG_E009;
+            return RedirectToAction("EnderecoEntrega", "CarrinhoCompra");
+        }
+
+        [HttpPost]
+        [ClienteAutorizacao]
+        public IActionResult Index([FromForm] IndexViewModel indexViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                //TODO - Integrar com Pagar.me, Salvar o pedido (Class), Redirecionar para a tela de pedido concluido;
+                EnderecoEntrega enderecoEntrega = ObterEndereco();
+                ValorPrazoFrete frete = ObterFrete(enderecoEntrega.CEP.ToString());
+                List<ProdutoItem> produtos = CarregarProdutoDB();
+                var parcela = _gerenciarPagarMe.CalcularPagamentoParcelado(ObterValorTotalCompra(produtos, frete)).Where(a => a.Numero == indexViewModel.Parcelamento.Numero).First();
+
+                try
                 {
-                    ViewBag.Frete = frete;
-                    List<ProdutoItem> produtoItemCompleto = CarregarProdutoDB();
+                    dynamic pagarmeResposta = _gerenciarPagarMe.GerarPagCartaoCredito(indexViewModel.CartaoCredito, parcela, enderecoEntrega, frete, produtos);
 
-                    return View(produtoItemCompleto);
+                    return new ContentResult() { Content = "Sucesso! " + pagarmeResposta.TransactionId };
                 }
-                */
+                catch (PagarMeException e)
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    if (e.Error.Errors.Count() > 0)
+                    {
+                        sb.Append("Erro no pagamento: ");
+                        foreach (var erro in e.Error.Errors)
+                        {
+                            sb.Append("- " + erro.Message + "<br />");
+                        }
+                    }
+                    TempData["MSG_E"] = sb.ToString();
+
+                    return Index();
+                }
+
+
+
+            }
+            else
+            {
+                return Index();
             }
 
-            TempData["MSG_E"] = Mensagem.MSG_E009;
-            return RedirectToAction("Index", "CarrinhoCompra");
+        }
+
+
+        private EnderecoEntrega ObterEndereco()
+        {
+            EnderecoEntrega enderecoEntrega = null;
+            var enderecoEntregaId = int.Parse(_cookie.Consultar("Carrinho.Endereco", false).Replace("-end", ""));
+
+            if (enderecoEntregaId == 0)
+            {
+                Cliente cliente = _loginCliente.GetCliente();
+                enderecoEntrega = new EnderecoEntrega();
+                enderecoEntrega.Nome = "Endereço do cliente";
+                enderecoEntrega.Id = 0;
+                enderecoEntrega.CEP = cliente.CEP;
+                enderecoEntrega.Estado = cliente.Estado;
+                enderecoEntrega.Cidade = cliente.Cidade;
+                enderecoEntrega.Bairro = cliente.Bairro;
+                enderecoEntrega.Endereco = cliente.Endereco;
+                enderecoEntrega.Complemento = cliente.Complemento;
+                enderecoEntrega.Numero = cliente.Numero;
+            }
+            else
+            {
+                var endereco = _enderecoEntregaRepository.ObterEnderecoEntrega(enderecoEntregaId);
+            }
+
+            return enderecoEntrega;
+        }
+        private ValorPrazoFrete ObterFrete(string cepDestino)
+        {
+            var tipoFreteSelecionadoPeloUsuario = _cookie.Consultar("Carrinho.TipoFrete", false);
+            var carrinhoHash = GerarHash(_cookieCarrinhoCompra.Consultar());
+            int cep = int.Parse(Mascara.Remover(cepDestino));
+
+            Frete frete = _cookieFrete.Consultar().Where(a => a.CEP == cep && a.CodCarrinho == carrinhoHash).FirstOrDefault();
+
+            if (frete != null)
+            {
+                return frete.ListaValores.Where(a => a.TipoFrete == tipoFreteSelecionadoPeloUsuario).FirstOrDefault();
+            }
+            return null;
+        }
+
+        private decimal ObterValorTotalCompra(List<ProdutoItem> produtos, ValorPrazoFrete frete)
+        {
+            decimal total = Convert.ToDecimal(frete.Valor);
+
+            foreach (var produto in produtos)
+            {
+                total += produto.Valor;
+            }
+
+            return total;
         }
     }
 }

@@ -25,6 +25,7 @@ using AutoMapper;
 using AlugaOffice.Libraries.AutoMapper;
 using AlugaOffice.Libraries.Gerenciador.Frete;
 using WSCorreios;
+using AlugaOffice.Libraries.Gerenciador.Pagamento.PagarMe;
 
 namespace AlugaOffice
 {
@@ -100,6 +101,7 @@ namespace AlugaOffice
             services.AddScoped<Libraries.Cookie.Cookie>();
             services.AddScoped<LoginCliente>();
             services.AddScoped<LoginColaborador>();
+            services.AddScoped<GerenciarPagarMe>();
 
             services.AddMvc(options =>
             {

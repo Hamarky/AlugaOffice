@@ -18,12 +18,14 @@ namespace AlugaOffice.Models
         public string Nome { get; set; }
 
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
+        // Validar
         public DateTime Nascimento { get; set; }
 
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
         public string Sexo { get; set; }
 
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
+        // Validar CPF
         public string CPF { get; set; }
 
         [Required(ErrorMessageResourceType = typeof(Mensagem), ErrorMessageResourceName = "MSG_E001")]
