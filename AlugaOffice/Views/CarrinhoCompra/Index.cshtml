@@ -35,7 +35,16 @@
                                         <tr>
                                             <td>
                                                 <figure class="itemside align-items-center">
-                                                    <div class="aside"><img src="@item.Imagens.ElementAt(0).Caminho" class="img-sm"></div>
+                                                    <div class="aside">
+                                                        @if (item.Imagens.Count > 0)
+                                                        {
+                                                            <img src="@item.Imagens.First().Caminho" class="img-thumbnail img-sm">
+                                                        }
+                                                        else
+                                                        {
+                                                            <img src="~/img/icon-produto.png" class="img-thumbnail img-sm">
+                                                        }
+                                                    </div>
                                                     <figcaption class="info">
                                                         <a href="#" class="title text-dark"><b>@item.Nome</b></a>
                                                     </figcaption>

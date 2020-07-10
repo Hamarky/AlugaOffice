@@ -108,7 +108,7 @@ namespace AlugaOffice.Areas.Cliente.Controllers
 
                 if (returnUrl == null)
                 {
-                    //TODO - Listagem de endereços.
+
                 }
                 else
                 {

@@ -142,6 +142,15 @@ namespace AlugaOffice.Libraries.Lang {
         }
         
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Não foi selecionado produtos para compra!.
+        /// </summary>
+        public static string MSG_E010 {
+            get {
+                return ResourceManager.GetString("MSG_E010", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Registro Salvo com Sucesso!.
         /// </summary>
         public static string MSG_S001 {

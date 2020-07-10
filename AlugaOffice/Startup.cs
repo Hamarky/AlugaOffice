@@ -41,10 +41,8 @@ namespace AlugaOffice
 
         public void ConfigureServices(IServiceCollection services)
         {
-            /*
-             * Padrão Repository
-             */
-            services.AddAutoMapper(typeof(MapeamentoProfile));
+            services.AddAutoMapper(config => config.AddProfile<MappingProfile>());
+
             services.AddHttpContextAccessor();
             services.AddScoped<IClienteRepository, ClienteRepository>();
             services.AddScoped<INewsletterRepository, NewsletterRepository>();
@@ -53,6 +51,8 @@ namespace AlugaOffice
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IImagemRepository, ImagemRepository>();
             services.AddScoped<IEnderecoEntregaRepository, EnderecoEntregaRepository>();
+            services.AddScoped<IPedidoRepository, PedidoRepository>();
+            services.AddScoped<IPedidoSituacaoRepository, PedidoSituacaoRepository>();
 
 
 
@@ -75,11 +75,11 @@ namespace AlugaOffice
                 return servico;
             });
             services.AddScoped<GerenciarEmail>();
-            services.AddScoped<Libraries.Cookie.Cookie>();
+            services.AddScoped<AlugaOffice.Libraries.Cookie.Cookie>();
             services.AddScoped<CookieCarrinhoCompra>();
             services.AddScoped<CookieFrete>();
-            services.AddScoped<WSCorreiosCalcularFrete>();
             services.AddScoped<CalcularPacote>();
+            services.AddScoped<WSCorreiosCalcularFrete>();
 
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -88,17 +88,14 @@ namespace AlugaOffice
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            /*
-             * Session - Configuração
-             */
-            services.AddMemoryCache(); //Guardar os dados na memória
+            services.AddMemoryCache();
             services.AddSession(options =>
             {
 
             });
 
             services.AddScoped<Sessao>();
-            services.AddScoped<Libraries.Cookie.Cookie>();
+            services.AddScoped<AlugaOffice.Libraries.Cookie.Cookie>();
             services.AddScoped<LoginCliente>();
             services.AddScoped<LoginColaborador>();
             services.AddScoped<GerenciarPagarMe>();
@@ -118,7 +115,6 @@ namespace AlugaOffice
             ));
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -129,7 +125,6 @@ namespace AlugaOffice
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 

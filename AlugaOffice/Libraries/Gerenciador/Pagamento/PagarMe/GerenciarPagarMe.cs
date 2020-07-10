@@ -22,53 +22,88 @@ namespace AlugaOffice.Libraries.Gerenciador.Pagamento.PagarMe
             _loginCliente = loginCliente;
         }
 
-        public object GerarBoleto(decimal valor)
+        public Transaction GerarBoleto(decimal valor, List<ProdutoItem> produtos, EnderecoEntrega enderecoEntrega, ValorPrazoFrete valorFrete)
         {
-            try
+            Cliente cliente = _loginCliente.GetCliente();
+
+            PagarMeService.DefaultApiKey = _configuration.GetValue<String>("Pagamento:PagarMe:ApiKey");
+            PagarMeService.DefaultEncryptionKey = _configuration.GetValue<String>("Pagamento:PagarMe:EncryptionKey");
+
+            Transaction transaction = new Transaction();
+
+            transaction.Amount = Convert.ToInt32(valor);
+            transaction.PaymentMethod = PaymentMethod.Boleto;
+
+            transaction.Customer = new Customer
             {
-                Cliente cliente = _loginCliente.GetCliente();
-
-                PagarMeService.DefaultApiKey = _configuration.GetValue<String>("Pagamento:PagarMe:ApiKey");
-                PagarMeService.DefaultEncryptionKey = _configuration.GetValue<String>("Pagamento:PagarMe:EncryptionKey");
-
-                Transaction transaction = new Transaction();
-
-                //TODO - Calcular o valor total;
-                transaction.Amount = Convert.ToInt32(valor);
-                transaction.PaymentMethod = PaymentMethod.Boleto;
-
-                transaction.Customer = new Customer
-                {
-                    ExternalId = cliente.Id.ToString(),
-                    Name = cliente.Nome,
-                    Type = CustomerType.Individual,
-                    Country = "br",
-                    Email = cliente.Email,
-                    Documents = new[] {
+                ExternalId = cliente.Id.ToString(),
+                Name = cliente.Nome,
+                Type = CustomerType.Individual,
+                Country = "br",
+                Email = cliente.Email,
+                Documents = new[] {
                         new Document{
                             Type = DocumentType.Cpf,
                             Number = Mascara.Remover(cliente.CPF)
                         }
                     },
-                    PhoneNumbers = new string[]
-                    {
+                PhoneNumbers = new string[]
+                {
                         "+55" + Mascara.Remover( cliente.Telefone )
-                    },
-                    Birthday = cliente.Nascimento.ToString("yyyy-MM-dd")
+                },
+                Birthday = cliente.Nascimento.ToString("yyyy-MM-dd")
+            };
+
+            var Today = DateTime.Now;
+            var fee = Convert.ToDecimal(valorFrete.Valor);
+
+            transaction.Shipping = new Shipping
+            {
+                Name = enderecoEntrega.Nome,
+                Fee = Mascara.ConverterValorPagarMe(fee),
+                DeliveryDate = Today.AddDays(_configuration.GetValue<int>("Frete:DiasNaEmpresa")).AddDays(valorFrete.Prazo).ToString("yyyy-MM-dd"),
+                Expedited = false,
+                Address = new Address()
+                {
+                    Country = "br",
+                    State = enderecoEntrega.Estado,
+                    City = enderecoEntrega.Cidade,
+                    Neighborhood = enderecoEntrega.Bairro,
+                    Street = enderecoEntrega.Endereco + " " + enderecoEntrega.Complemento,
+                    StreetNumber = enderecoEntrega.Numero,
+                    Zipcode = Mascara.Remover(enderecoEntrega.CEP)
+                }
+            };
+
+            Item[] itens = new Item[produtos.Count];
+
+            for (var i = 0; i < produtos.Count; i++)
+            {
+                var item = produtos[i];
+
+                var itemA = new Item()
+                {
+                    Id = item.Id.ToString(),
+                    Title = item.Nome,
+                    Quantity = item.QuantidadeProdutoCarrinho,
+                    Tangible = true,
+                    UnitPrice = Mascara.ConverterValorPagarMe(item.Valor)
                 };
 
-                transaction.Save();
 
-                return new { BoletoURL = transaction.BoletoUrl, BarCode = transaction.BoletoBarcode, Expiracao = transaction.BoletoExpirationDate };
+                itens[i] = itemA;
             }
-            catch (Exception e)
-            {
-                return new { Erro = e.Message };
-            }
+
+            transaction.Item = itens;
+
+            transaction.Save();
+
+            transaction.Customer.Gender = (cliente.Sexo == "M") ? Gender.Male : Gender.Female;
+            return transaction;
         }
 
 
-        public object GerarPagCartaoCredito(CartaoCredito cartao, Parcelamento parcelamento, EnderecoEntrega enderecoEntrega, ValorPrazoFrete valorFrete, List<ProdutoItem> produtos)
+        public Transaction GerarPagCartaoCredito(CartaoCredito cartao, Parcelamento parcelamento, EnderecoEntrega enderecoEntrega, ValorPrazoFrete valorFrete, List<ProdutoItem> produtos)
         {
             Cliente cliente = _loginCliente.GetCliente();
 
@@ -84,7 +119,8 @@ namespace AlugaOffice.Libraries.Gerenciador.Pagamento.PagarMe
             card.Save();
 
             Transaction transaction = new Transaction();
-
+            transaction.PaymentMethod = PaymentMethod.CreditCard;
+            
             transaction.Card = new Card
             {
                 Id = card.Id
@@ -126,7 +162,6 @@ namespace AlugaOffice.Libraries.Gerenciador.Pagamento.PagarMe
             };
 
             var Today = DateTime.Now;
-
             var fee = Convert.ToDecimal(valorFrete.Valor);
 
             transaction.Shipping = new Shipping
@@ -172,7 +207,8 @@ namespace AlugaOffice.Libraries.Gerenciador.Pagamento.PagarMe
 
             transaction.Save();
 
-            return new { TransactionId = transaction.Id };
+            transaction.Customer.Gender = (cliente.Sexo == "M") ? Gender.Male : Gender.Female;
+            return transaction;
         }
 
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using AlugaOffice.Controllers.Base;
 using AlugaOffice.Libraries.CarrinhoCompra;
 using AlugaOffice.Libraries.Cookie;
@@ -13,23 +14,33 @@ using AlugaOffice.Libraries.Lang;
 using AlugaOffice.Libraries.Login;
 using AlugaOffice.Libraries.Texto;
 using AlugaOffice.Models;
+using AlugaOffice.Models.Constants;
 using AlugaOffice.Models.TodosProdutos;
 using AlugaOffice.Models.ViewModels.Pagamento;
 using AlugaOffice.Repositories.Contracts;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json;
 using PagarMe;
+using AlugaOffice.Libraries.AutoMapper;
+using AlugaOffice.Libraries.Email;
 
 namespace AlugaOffice.Controllers
 {
+    [ClienteAutorizacao]
+    [ValidateCookiePagamentoController]
     public class PagamentoController : BaseController
     {
         private Cookie _cookie;
         private GerenciarPagarMe _gerenciarPagarMe;
+        private IPedidoRepository _pedidoRepository;
+        private IPedidoSituacaoRepository _pedidoSituacaRepository;
+        private GerenciarEmail _gerenciarEmail;
 
         public PagamentoController(
+            GerenciarEmail gerenciarEmail,
+            IPedidoRepository pedidoRepository,
+            IPedidoSituacaoRepository pedidoSituacaRepository,
             GerenciarPagarMe gerenciarPagarMe,
             LoginCliente loginCliente,
             Cookie cookie,
@@ -50,79 +61,49 @@ namespace AlugaOffice.Controllers
                   calcularPacote,
                   cookieValorPrazoFrete)
         {
+            _gerenciarEmail = gerenciarEmail;
+            _pedidoRepository = pedidoRepository;
+            _pedidoSituacaRepository = pedidoSituacaRepository;
             _cookie = cookie;
             _gerenciarPagarMe = gerenciarPagarMe;
         }
 
-        [ClienteAutorizacao]
         [HttpGet]
         public IActionResult Index()
         {
-            var tipoFreteSelecionadoPeloUsuario = _cookie.Consultar("Carrinho.TipoFrete", false);
-            if (tipoFreteSelecionadoPeloUsuario != null)
-            {
-                var enderecoEntrega = ObterEndereco();
-                var carrinhoHash = GerarHash(_cookieCarrinhoCompra.Consultar());
-                int cep = int.Parse(Mascara.Remover(enderecoEntrega.CEP));
-                List<ProdutoItem> produtoItemCompleto = CarregarProdutoDB();
-                var frete = ObterFrete(cep.ToString());
+            List<ProdutoItem> produtoItemCompleto = CarregarProdutoDB();
+            ValorPrazoFrete frete = ObterFrete();
 
-                var total = ObterValorTotalCompra(produtoItemCompleto, frete);
-                var parcelamento = _gerenciarPagarMe.CalcularPagamentoParcelado(total);
+            ViewBag.Frete = frete;
+            ViewBag.Produtos = produtoItemCompleto;
+            ViewBag.Parcelamentos = CalcularParcelamento(produtoItemCompleto);
 
-                ViewBag.Frete = frete;
-                ViewBag.Produtos = produtoItemCompleto;
-                ViewBag.Parcelamentos = parcelamento.Select(a => new SelectListItem(
-                    String.Format(
-                        "{0}x {1} {2} - TOTAL: {3}",
-                        a.Numero, a.ValorPorParcela.ToString("C"), (a.Juros) ? "c/ juros" : "s/ juros", a.Valor.ToString("C")
-                    ),
-                    a.Numero.ToString()
-                )).ToList();
-
-                return View("Index");
-            }
-            TempData["MSG_E"] = Mensagem.MSG_E009;
-            return RedirectToAction("EnderecoEntrega", "CarrinhoCompra");
+            return View("Index");
         }
 
         [HttpPost]
-        [ClienteAutorizacao]
         public IActionResult Index([FromForm] IndexViewModel indexViewModel)
         {
             if (ModelState.IsValid)
             {
-                //TODO - Integrar com Pagar.me, Salvar o pedido (Class), Redirecionar para a tela de pedido concluido;
                 EnderecoEntrega enderecoEntrega = ObterEndereco();
-                ValorPrazoFrete frete = ObterFrete(enderecoEntrega.CEP.ToString());
+                ValorPrazoFrete frete = ObterFrete();
                 List<ProdutoItem> produtos = CarregarProdutoDB();
-                var parcela = _gerenciarPagarMe.CalcularPagamentoParcelado(ObterValorTotalCompra(produtos, frete)).Where(a => a.Numero == indexViewModel.Parcelamento.Numero).First();
+                Parcelamento parcela = BuscarParcelamento(produtos, indexViewModel.Parcelamento.Numero);
 
                 try
                 {
-                    dynamic pagarmeResposta = _gerenciarPagarMe.GerarPagCartaoCredito(indexViewModel.CartaoCredito, parcela, enderecoEntrega, frete, produtos);
+                    Transaction transaction = _gerenciarPagarMe.GerarPagCartaoCredito(indexViewModel.CartaoCredito, parcela, enderecoEntrega, frete, produtos);
+                    Pedido pedido = ProcessarPedido(produtos, transaction);
 
-                    return new ContentResult() { Content = "Sucesso! " + pagarmeResposta.TransactionId };
+                    return new RedirectToActionResult("Index", "Pedido", new { id = pedido.Id });
                 }
                 catch (PagarMeException e)
                 {
-                    StringBuilder sb = new StringBuilder();
-
-                    if (e.Error.Errors.Count() > 0)
-                    {
-                        sb.Append("Erro no pagamento: ");
-                        foreach (var erro in e.Error.Errors)
-                        {
-                            sb.Append("- " + erro.Message + "<br />");
-                        }
-                    }
-                    TempData["MSG_E"] = sb.ToString();
+                    TempData["MSG_E"] = MontarMensagensDeErro(e);
 
                     return Index();
                 }
-
-
-
             }
             else
             {
@@ -130,8 +111,83 @@ namespace AlugaOffice.Controllers
             }
 
         }
+        public IActionResult BoletoBancario()
+        {
+            EnderecoEntrega enderecoEntrega = ObterEndereco();
+            ValorPrazoFrete frete = ObterFrete();
+            List<ProdutoItem> produtos = CarregarProdutoDB();
+            var valorTotal = ObterValorTotalCompra(produtos);
 
+            try
+            {
+                Transaction transaction = _gerenciarPagarMe.GerarBoleto(valorTotal, produtos, enderecoEntrega, frete);
 
+                Pedido pedido = ProcessarPedido(produtos, transaction);
+
+                return new RedirectToActionResult("Index", "Pedido", new { id = pedido.Id });
+            }
+            catch (PagarMeException e)
+            {
+                TempData["MSG_E"] = MontarMensagensDeErro(e);
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        private Pedido ProcessarPedido(List<ProdutoItem> produtos, Transaction transaction)
+        {
+            TransacaoPagarMe transacaoPagarMe;
+            Pedido pedido;
+
+            SalvarPedido(produtos, transaction, out transacaoPagarMe, out pedido);
+
+            SalvarPedidoSituacao(produtos, transacaoPagarMe, pedido);
+
+            DarBaixaNoEstoque(produtos);
+
+            _cookieCarrinhoCompra.RemoverTodos();
+
+            _gerenciarEmail.EnviarDadosDoPedido(_loginCliente.GetCliente(), pedido);
+
+            return pedido;
+        }
+
+        private void DarBaixaNoEstoque(List<ProdutoItem> produtos)
+        {
+            foreach (var produto in produtos)
+            {
+                Produto produtoDB = _produtoRepository.ObterProduto(produto.Id);
+                produtoDB.Quantidade -= produto.QuantidadeProdutoCarrinho;
+
+                _produtoRepository.Atualizar(produtoDB);
+            }
+        }
+
+        private void SalvarPedidoSituacao(List<ProdutoItem> produtos, TransacaoPagarMe transacaoPagarMe, Pedido pedido)
+        {
+            TransactionProduto tp = new TransactionProduto { Transaction = transacaoPagarMe, Produtos = produtos };
+            PedidoSituacao pedidoSituacao = _mapper.Map<Pedido, PedidoSituacao>(pedido);
+            pedidoSituacao = _mapper.Map<TransactionProduto, PedidoSituacao>(tp, pedidoSituacao);
+
+            pedidoSituacao.Situacao = PedidoSituacaoConstant.AGUARDANDO_PAGAMENTO;
+
+            _pedidoSituacaRepository.Cadastrar(pedidoSituacao);
+        }
+
+        private void SalvarPedido(List<ProdutoItem> produtos, Transaction transaction, out TransacaoPagarMe transacaoPagarMe, out Pedido pedido)
+        {
+            transacaoPagarMe = _mapper.Map<TransacaoPagarMe>(transaction);
+            pedido = _mapper.Map<TransacaoPagarMe, Pedido>(transacaoPagarMe);
+            pedido = _mapper.Map<List<ProdutoItem>, Pedido>(produtos, pedido);
+
+            pedido.Situacao = PedidoSituacaoConstant.AGUARDANDO_PAGAMENTO;
+
+            _pedidoRepository.Cadastrar(pedido);
+        }
+
+        private Parcelamento BuscarParcelamento(List<ProdutoItem> produtos, int numero)
+        {
+            return _gerenciarPagarMe.CalcularPagamentoParcelado(ObterValorTotalCompra(produtos)).Where(a => a.Numero == numero).First();
+        }
         private EnderecoEntrega ObterEndereco()
         {
             EnderecoEntrega enderecoEntrega = null;
@@ -140,16 +196,7 @@ namespace AlugaOffice.Controllers
             if (enderecoEntregaId == 0)
             {
                 Cliente cliente = _loginCliente.GetCliente();
-                enderecoEntrega = new EnderecoEntrega();
-                enderecoEntrega.Nome = "Endereço do cliente";
-                enderecoEntrega.Id = 0;
-                enderecoEntrega.CEP = cliente.CEP;
-                enderecoEntrega.Estado = cliente.Estado;
-                enderecoEntrega.Cidade = cliente.Cidade;
-                enderecoEntrega.Bairro = cliente.Bairro;
-                enderecoEntrega.Endereco = cliente.Endereco;
-                enderecoEntrega.Complemento = cliente.Complemento;
-                enderecoEntrega.Numero = cliente.Numero;
+                enderecoEntrega = _mapper.Map<EnderecoEntrega>(cliente);
             }
             else
             {
@@ -158,11 +205,12 @@ namespace AlugaOffice.Controllers
 
             return enderecoEntrega;
         }
-        private ValorPrazoFrete ObterFrete(string cepDestino)
+        private ValorPrazoFrete ObterFrete()
         {
+            var enderecoEntrega = ObterEndereco();
+            int cep = int.Parse(Mascara.Remover(enderecoEntrega.CEP));
             var tipoFreteSelecionadoPeloUsuario = _cookie.Consultar("Carrinho.TipoFrete", false);
             var carrinhoHash = GerarHash(_cookieCarrinhoCompra.Consultar());
-            int cep = int.Parse(Mascara.Remover(cepDestino));
 
             Frete frete = _cookieFrete.Consultar().Where(a => a.CEP == cep && a.CodCarrinho == carrinhoHash).FirstOrDefault();
 
@@ -172,17 +220,45 @@ namespace AlugaOffice.Controllers
             }
             return null;
         }
-
-        private decimal ObterValorTotalCompra(List<ProdutoItem> produtos, ValorPrazoFrete frete)
+        private decimal ObterValorTotalCompra(List<ProdutoItem> produtos)
         {
+            ValorPrazoFrete frete = ObterFrete();
             decimal total = Convert.ToDecimal(frete.Valor);
 
             foreach (var produto in produtos)
             {
-                total += produto.Valor;
+                total += produto.Valor * produto.QuantidadeProdutoCarrinho;
             }
 
             return total;
+        }
+        private List<SelectListItem> CalcularParcelamento(List<ProdutoItem> produtos)
+        {
+            var total = ObterValorTotalCompra(produtos);
+            var parcelamento = _gerenciarPagarMe.CalcularPagamentoParcelado(total);
+
+
+            return parcelamento.Select(a => new SelectListItem(
+                String.Format(
+                    "{0}x {1} {2} - TOTAL: {3}",
+                    a.Numero, a.ValorPorParcela.ToString("C"), (a.Juros) ? "c/ juros" : "s/ juros", a.Valor.ToString("C")
+                ),
+                a.Numero.ToString()
+            )).ToList();
+        }
+        private string MontarMensagensDeErro(PagarMeException e)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (e.Error.Errors.Count() > 0)
+            {
+                sb.Append("Erro no pagamento: ");
+                foreach (var erro in e.Error.Errors)
+                {
+                    sb.Append("- " + erro.Message + "<br />");
+                }
+            }
+            return sb.ToString();
         }
     }
 }

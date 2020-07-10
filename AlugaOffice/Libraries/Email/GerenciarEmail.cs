@@ -66,5 +66,30 @@ namespace AlugaOffice.Libraries.Email
             //Enviar Mensagem via SMTP
             _smtp.Send(mensagem);
         }
+        public void EnviarDadosDoPedido(Cliente cliente, Pedido pedido)
+        {
+            string corpoMsg = string.Format("<h2>Pedido - Aluga Office</h2>" +
+
+                "Pedido realizado com sucesso!<br />" +
+                "<h3>Nº {0}</h3>" +
+                "<br /> Acompanhe o andamento em nossa loja.",
+                pedido.Id + "-" + pedido.TransactionId
+
+            );
+
+
+            /*
+             * MailMessage -> Construir a mensagem
+             */
+            MailMessage mensagem = new MailMessage();
+            mensagem.From = new MailAddress(_configuration.GetValue<string>("Email:Username"));
+            mensagem.To.Add(cliente.Email);
+            mensagem.Subject = "AlugaOffice - Pedido - " + pedido.Id + "-" + pedido.TransactionId;
+            mensagem.Body = corpoMsg;
+            mensagem.IsBodyHtml = true;
+
+            //Enviar Mensagem via SMTP
+            _smtp.Send(mensagem);
+        }
     }
 }

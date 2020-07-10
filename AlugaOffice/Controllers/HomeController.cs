@@ -55,7 +55,6 @@ namespace AlugaOffice.Controllers
         {
             return View();
         }
-
         public IActionResult Contato()
         {
             return View();
@@ -97,6 +96,5 @@ namespace AlugaOffice.Controllers
             }
             return View("Contato");
         }
-
     }
 }

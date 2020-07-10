@@ -3,14 +3,16 @@ using System;
 using AlugaOffice.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AlugaOffice.Migrations
 {
     [DbContext(typeof(AlugaOfficeContext))]
-    partial class AlugaOfficeContextModelSnapshot : ModelSnapshot
+    [Migration("20200710161433_PedidoPedidoSituacao")]
+    partial class PedidoPedidoSituacao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

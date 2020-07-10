@@ -89,6 +89,19 @@ namespace AlugaOffice.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [ClienteAutorizacao]
+        public IActionResult EnderecoEntrega()
+        {
+            Cliente cliente = _loginCliente.GetCliente();
+            IList<EnderecoEntrega> enderecos = _enderecoEntregaRepository.ObterTodosEnderecoEntregaCliente(cliente.Id);
+
+            ViewBag.Produtos = CarregarProdutoDB();
+            ViewBag.Cliente = cliente;
+            ViewBag.Enderecos = enderecos;
+
+            return View();
+        }
+
 
         public async Task<IActionResult> CalcularFrete(int cepDestino)
         {
@@ -107,12 +120,12 @@ namespace AlugaOffice.Controllers
 
                     ValorPrazoFrete valorPAC = await _wscorreios.CalcularFrete(cepDestino.ToString(), TipoFreteConstant.PAC, pacotes);
                     ValorPrazoFrete valorSEDEX = await _wscorreios.CalcularFrete(cepDestino.ToString(), TipoFreteConstant.SEDEX, pacotes);
+                    ValorPrazoFrete valorSEDEX10 = await _wscorreios.CalcularFrete(cepDestino.ToString(), TipoFreteConstant.SEDEX10, pacotes);
 
                     List<ValorPrazoFrete> lista = new List<ValorPrazoFrete>();
                     if (valorPAC != null) lista.Add(valorPAC);
                     if (valorSEDEX != null) lista.Add(valorSEDEX);
-
-                    StringMD5.MD5Hash(JsonConvert.SerializeObject(_cookieCarrinhoCompra.Consultar()));
+                    if (valorSEDEX10 != null) lista.Add(valorSEDEX10);
 
                     frete = new Frete()
                     {
@@ -131,20 +144,5 @@ namespace AlugaOffice.Controllers
                 return BadRequest(e);
             }
         }
-
-        [ClienteAutorizacao]
-        public IActionResult EnderecoEntrega()
-        {
-
-            Cliente cliente = _loginCliente.GetCliente();
-            IList<EnderecoEntrega> enderecos = _enderecoEntregaRepository.ObterTodosEnderecoEntregaCliente(cliente.Id);
-
-            ViewBag.Produtos = CarregarProdutoDB();
-            ViewBag.Cliente = cliente;
-            ViewBag.Enderecos = enderecos;
-            return View();
-        }
-
-
     }
 }

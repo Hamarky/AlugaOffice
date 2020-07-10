@@ -3,13 +3,14 @@
     ViewData["Title"] = "Index";
     decimal Subtotal = 0;
 }
+
 <main role="main" style="margin-top: 50px">
     <div class="container">
         <br />
         <br />
         <div class="row">
             <div class="col-md-6">
-                @{await Html.RenderPartialAsync("~/Views/Shared/_Mensagem.cshtml");}
+                @{ await Html.RenderPartialAsync("~/Views/Shared/_Mensagem.cshtml"); }
                 <div id="code_itemside_img2">
                     <div class="box items-bordered-wrap">
                         @foreach (var item in ViewBag.Produtos)
@@ -62,6 +63,7 @@
                 </div>
             </div>
             <div class="col-md-6">
+                
                 <div id="code_payment2">
 
                     <article class="card">
@@ -75,7 +77,7 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" data-toggle="pill" href="#nav-tab-paypal">
-                                        <i class="fab fa-paypal"></i>  Boleto Bancário
+                                        <i class="fa fa-barcode"></i>  Boleto Bancário
                                     </a>
                                 </li>
                             </ul>
@@ -84,12 +86,12 @@
                                 <div class="tab-pane fade active show" id="nav-tab-card">
                                     <form role="form" method="post">
                                         <div class="form-group">
-                                            <label asp-for="CartaoCredito.NomeNoCartao">Nome Completo (dono do cartão)</label>
+                                            <label asp-for="CartaoCredito.NomeNoCartao"></label>
                                             <input type="text" asp-for="CartaoCredito.NomeNoCartao" class="form-control" placeholder="">
                                             <span asp-validation-for="CartaoCredito.NomeNoCartao"></span>
                                         </div>
                                         <div class="form-group">
-                                            <label asp-for="CartaoCredito.NumeroCartao">Número do Cartao</label>
+                                            <label asp-for="CartaoCredito.NumeroCartao"></label>
 
                                             <div class="input-group">
                                                 <input type="text" asp-for="CartaoCredito.NumeroCartao" class="form-control" placeholder="">
@@ -102,11 +104,10 @@
                                             </div>
                                             <span asp-validation-for="CartaoCredito.NumeroCartao"></span>
                                         </div>
-
                                         <div class="row">
                                             <div class="col-sm-8">
                                                 <div class="form-group">
-                                                    <label for="VecimentoMM" class="hidden-xs">Validade</label>
+                                                    <label for="VecimentoMM" class="hidden-xs">Vecimento</label>
                                                     <div class="input-group">
                                                         <input type="number" class="form-control" placeholder="MM" asp-for="CartaoCredito.VecimentoMM">
                                                         <input type="number" class="form-control" placeholder="YY" asp-for="CartaoCredito.VecimentoYY">
@@ -122,9 +123,9 @@
                                                     <span asp-validation-for="CartaoCredito.CodigoSeguranca"></span>
                                                 </div>
                                             </div>
-                                            <div class="col-sm-10">
+                                            <div class="col-sm-4">
                                                 <div class="form-group">
-                                                    <label asp-for="Parcelamento" data-toggle="tooltip" title="">Parcelamento <i class="fa"></i></label>
+                                                    <label asp-for="Parcelamento" data-toggle="tooltip" title="">Parcelamento <i class="fa fa-question-circle"></i></label>
                                                     <select class="form-control" asp-for="Parcelamento.Numero" asp-items="ViewBag.Parcelamentos"></select>
                                                     <span asp-validation-for="Parcelamento"></span>
                                                 </div>
@@ -136,7 +137,7 @@
                                 <div class="tab-pane fade" id="nav-tab-paypal">
                                     <p>Clique no botão para imprimir o boleto bancário.</p>
                                     <p>
-                                        <button type="button" class="btn btn-primary"> <i class="fab fa-barcode"></i> Imprimir boleto </button>
+                                        <a class="btn btn-outline-primary btn-lg" asp-action="BoletoBancario"> <i class="fa fa-barcode"></i>Gerar Boleto</a>
                                     </p>
                                 </div>
 
@@ -149,5 +150,6 @@
             </div>
         </div>
     </div>
-
 </main>
+
+
