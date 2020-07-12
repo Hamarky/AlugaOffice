@@ -89,5 +89,21 @@ namespace AlugaOffice.Repositories
         {
             return _banco.Categorias;
         }
+
+        public IPagedList<Categoria> ObterTodasCategorias(int? pagina, string pesquisa)
+        {
+            int RegistroPorPagina = _conf.GetValue<int>("RegistroPorPagina");
+
+            int NumeroPagina = pagina ?? 1;
+
+            var bancoCategorias = _banco.Categorias.AsQueryable();
+            if (!string.IsNullOrEmpty(pesquisa))
+            {
+
+                bancoCategorias = bancoCategorias.Where(a => a.Nome.Contains(pesquisa.Trim()));
+            }
+
+            return bancoCategorias.ToPagedList<Categoria>(NumeroPagina, RegistroPorPagina);
+        }
     }
 }

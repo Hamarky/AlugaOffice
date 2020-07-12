@@ -39,18 +39,13 @@ namespace AlugaOffice.Libraries.Arquivo
 
         public static List<Imagem> MoverImagensProduto(List<string> ListaCaminhoTemp, int ProdutoId)
         {
-            /*
-             * Criar a Pasta do Produto
-             */
+
             var CaminhoDefinitivoPastaProduto = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", ProdutoId.ToString());
             if (!Directory.Exists(CaminhoDefinitivoPastaProduto))
             {
                 Directory.CreateDirectory(CaminhoDefinitivoPastaProduto);
             }
-
-            /*
-             * Mover a Imagem da Pasta Temp para a pasta definitiva
-             */
+             
             List<Imagem> ListaImagensDef = new List<Imagem>();
             foreach (var CaminhoTemp in ListaCaminhoTemp)
             {
@@ -67,15 +62,13 @@ namespace AlugaOffice.Libraries.Arquivo
 
                         if (File.Exists(CaminhoAbsolutoTemp))
                         {
-                            //Deleta arquivo no caminho de Destino.
                             if (File.Exists(CaminhoAbsolutoDef))
                             {
                                 File.Delete(CaminhoAbsolutoDef);
                             }
-                            //Copia Arquivo da pasta Temporaria para Destino.
+
                             File.Copy(CaminhoAbsolutoTemp, CaminhoAbsolutoDef);
 
-                            //Deleta arquivo da pasta Temporária.
                             if (File.Exists(CaminhoAbsolutoDef))
                             {
                                 File.Delete(CaminhoAbsolutoTemp);

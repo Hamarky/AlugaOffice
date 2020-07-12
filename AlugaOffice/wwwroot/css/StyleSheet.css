@@ -37,9 +37,106 @@ nav.navbar-transparente {
         color: #9bf0e1;
     }
 
+/**BOTAO CUSTOM*/
+
+.btn-custom {
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    width: 100%;
+    height: 100%;
+}
+
+    .btn-custom :hover {
+        background-color: darkgray;
+        color: white;
+    }
+
+.btn-personalizado {
+    text-transform: uppercase;
+    margin-right: 15px;
+    width: 100%;
+    height: 100%;
+}
 
 
+/**DROPDOWN*/
 
+.dropbtn {
+    background-color: #343A40;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+            
+        }
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #343A40;
+}
+
+/*
+.dropbtn {
+    background-color: #343A40;
+    color: #9A9DA0;
+    padding: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown {
+    color: white;
+}
+
+.dropdown-content {
+    background-color: darkgray;
+    
+}
+
+    .dropdown-content :hover {
+        background-color: darkgray;
+        border: none;
+        display: block;
+        color: white;
+    }
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+/*
+
+
+/*---------------------------*/
 
 .field-validation-error {
     color: red;
@@ -65,7 +162,7 @@ nav.navbar-transparente {
 }
 
 .Imagens .img-thumbnail {
-    width: 100%;
+    width: 80%;
     border: none;
 }
 
@@ -76,7 +173,7 @@ nav.navbar-transparente {
 .Imagens .container-img-thumbnail {
     width: 100%;
     height: 100%;
-    max-height: 180px;
+    max-height: 120px;
     border: 1px solid #CCC;
     border-radius: 4px 4px 0px 0px;
     white-space: nowrap;
@@ -119,10 +216,6 @@ nav.navbar-transparente {
     }
 }
 
-
-/*
-    CSS - Menu Multilevel Bootstrap 4
-*/
 
 .dropdown-submenu {
     position: relative;
@@ -188,12 +281,6 @@ nav.navbar-transparente {
 .dlist-align dd {
     margin-left: 65px;
     text-align: left;
-}
-
-.btn-continuar, .btn-continuar-comprando {
-    width: 100%;
-    min-height: 70px;
-    font-size: 36px;
 }
 
 .numero-pedido {

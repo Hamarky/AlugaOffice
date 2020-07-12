@@ -27,9 +27,9 @@ namespace AlugaOffice.Areas.Colaborador.Controllers
             _gerenciarEmail = gerenciarEmail;
         }
 
-        public IActionResult Index(int? pagina)
+        public IActionResult Index(int? pagina, string pesquisa)
         {
-            IPagedList<Models.Colaborador> colaboradores = _colaboradorRespository.ObterTodosColaboradores(pagina);
+            IPagedList<Models.Colaborador> colaboradores = _colaboradorRespository.ObterTodosColaboradores(pagina, pesquisa);
 
             return View(colaboradores);
         }

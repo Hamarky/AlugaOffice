@@ -9,20 +9,20 @@
 {
     <li class="dropdown-submenu">
         <a class="dropdown-item" tabindex="-1" asp-controller="Produto" asp-action="ListagemCategoria" asp-route-slug="@CategoriaPai.Slug">@CategoriaPai.Nome</a>
-        <ul class="dropdown-menu">
-            @foreach (var categoriaF in CategoriasFilho)
-            {
-                @if (TodasCategorias.Where(a => a.CategoriaPaiId == categoriaF.Id).Count() > 0)
+            <ul class="dropdown-menu">
+                @foreach (var categoriaF in CategoriasFilho)
                 {
-                    ViewData.Remove("CategoriaPai");
-                    @await Html.PartialAsync("_Submenu.cshtml", new ViewDataDictionary(ViewData) { { "CategoriaPai", categoriaF } })
+                    @if (TodasCategorias.Where(a => a.CategoriaPaiId == categoriaF.Id).Count() > 0)
+                    {
+                        ViewData.Remove("CategoriaPai");
+                        @await Html.PartialAsync("_Submenu.cshtml", new ViewDataDictionary(ViewData) { { "CategoriaPai", categoriaF } })
+                    }
+                    else
+                    {
+                        <li class="dropdown-item"><a asp-controller="Produto" asp-action="ListagemCategoria" asp-route-slug="@categoriaF.Slug">@categoriaF.Nome</a></li>
+                    }
                 }
-                else
-                {
-                    <li class="dropdown-item"><a asp-controller="Produto" asp-action="ListagemCategoria" asp-route-slug="@categoriaF.Slug">@categoriaF.Nome</a></li>
-                }
-            }
-        </ul>
+            </ul>
     </li>
 }
 else

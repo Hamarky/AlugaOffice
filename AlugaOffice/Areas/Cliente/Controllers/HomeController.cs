@@ -8,6 +8,7 @@ using AlugaOffice.Repositories.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using AlugaOffice.Models;
+using Microsoft.AspNetCore.WebSockets.Internal;
 
 namespace AlugaOffice.Areas.Cliente.Controllers
 {
@@ -18,7 +19,7 @@ namespace AlugaOffice.Areas.Cliente.Controllers
         private LoginCliente _loginCliente;
         private IEnderecoEntregaRepository _enderecoEntregaRepository;
 
-        public HomeController(IClienteRepository repositoryCliente, LoginCliente loginCliente, 
+        public HomeController(IClienteRepository repositoryCliente, LoginCliente loginCliente,
             IEnderecoEntregaRepository enderecoEntregaRepository)
         {
             _repositoryCliente = repositoryCliente;
@@ -39,15 +40,23 @@ namespace AlugaOffice.Areas.Cliente.Controllers
 
             if (clienteDB != null)
             {
-                _loginCliente.Login(clienteDB);
-
-                if (returnUrl == null)
+                if (clienteDB.Situacao == Models.Constants.SituacaoConstant.Desativado)
                 {
-                    return new RedirectResult(Url.Action(nameof(Painel)));
+                    ViewData["MSG_E"] = "Seu Login foi desativado";
+                    return View();
                 }
                 else
                 {
-                    return LocalRedirectPermanent(returnUrl);
+                    _loginCliente.Login(clienteDB);
+
+                    if (returnUrl == null)
+                    {
+                        return new RedirectResult("~/");
+                    }
+                    else
+                    {
+                        return LocalRedirectPermanent(returnUrl);
+                    }
                 }
             }
             else
@@ -74,6 +83,7 @@ namespace AlugaOffice.Areas.Cliente.Controllers
         {
             if (ModelState.IsValid)
             {
+                cliente.Situacao = Models.Constants.SituacaoConstant.Ativado;
                 _repositoryCliente.Cadastrar(cliente);
                 _loginCliente.Login(cliente);
 
@@ -116,6 +126,14 @@ namespace AlugaOffice.Areas.Cliente.Controllers
                 }
             }
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult Sair()
+        {
+            _loginCliente.Logout();
+
+            return RedirectToAction("Index", "Home", new { area = "" });
         }
     }
 }

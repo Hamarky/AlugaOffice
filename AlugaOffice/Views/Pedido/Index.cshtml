@@ -1,7 +1,7 @@
 ﻿@model AlugaOffice.Models.Pedido
 @{
     ViewData["Title"] = "Index";
-    decimal valorTotal = 0;
+    decimal Subtotal = 0;
 }
 <br />
 <br />
@@ -15,6 +15,7 @@
                 <table class="table table-bordered">
                     <thread>
                         <tr>
+                            <th>#</th>
                             <th>Nome</th>
                             <th>Quantidade</th>
                             <th>Valor</th>
@@ -23,30 +24,41 @@
 
                     @foreach (ProdutoItem produto in ViewBag.Produtos)
                     {
-                        valorTotal += (produto.QuantidadeProdutoCarrinho * produto.Valor);
+                        Subtotal += (produto.QuantidadeProdutoCarrinho * produto.Valor);
                         <tr>
-                            <td>@produto.Nome</td>
+                            <td>
+                                @if (produto.Imagens.Count > 0)
+                                {
+                                    <img src="@produto.Imagens.First().Caminho" class="img-sm">
+                                }
+                                else
+                                {
+                                    <img src="~/img/icon-produto.png" class="img-sm">
+                                }
+                            </td>
+                            <td>
+                                @produto.Nome
+                            </td>
                             <td>@produto.QuantidadeProdutoCarrinho</td>
                             <td>
                                 @((produto.QuantidadeProdutoCarrinho * produto.Valor).ToString("C"))
-                                (@produto.Valor.ToString("C") unid)
                             </td>
                         </tr>
                     }
 
                     <tr>
-                        <td colspan="2">Frete</td>
+                        <td colspan="3">FRETE</td>
                         <td>
                             @{
                                 var frete = Mascara.ConverterPagarMeIntToDecimal(ViewBag.Transacao.Shipping.Fee);
-                                valorTotal += frete;
+                                Subtotal += frete;
                             }
                             @frete.ToString("C")
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="2">TOTAL</td>
-                        <td>@valorTotal.ToString("C")</td>
+                        <td colspan="3"><b>TOTAL</b></td>
+                        <td><b>@Subtotal.ToString("C")</b></td>
                     </tr>
                 </table>
 

@@ -106,18 +106,21 @@
             @if (Imagens.ElementAtOrDefault(i) != null)
             {
                 <div class="col-md-2">
-                    <!--<input type="file" class="input-file" />-->
-                    <img src="@Imagens.ElementAtOrDefault(i).Caminho" class="img-thumbnail img-upload" />
-                    <div class="btn btn-danger btn-imagem-excluir">X</div>
-                    <!--<input type="text" name="imagem" value="@Imagens.ElementAtOrDefault(i).Caminho" />-->
+                    <input type="file" id="input-file" class="input-file" />
+                    <div class="container-img-thumbnail">
+                        <span class="helper"></span><img src="@Imagens.ElementAtOrDefault(i).Caminho" class="img-thumbnail img-upload"  />
+                    </div>
+                    <div class="btn btn-danger btn-imagem-excluir" id="btn-imagem-excluir">X</div>
+                    <input type="text" name="imagem" value="@Imagens.ElementAtOrDefault(i).Caminho" />
                 </div>
-
-                }
-                else
-                {
+            }
+            else
+            {
                 <div class="col-md-2">
                     <input type="file" class="input-file" />
-                    <img src="~/img/padrao.svg" class="img-thumbnail img-upload" />
+                    <div class="container-img-thumbnail">
+                        <span class="helper"></span><img src="~/img/imagem-padrao.svg" class="img-thumbnail img-upload" />
+                    </div>
                     <div class="btn btn-danger btn-imagem-excluir btn-ocultar">X</div>
                     <input type="text" name="imagem" />
                 </div>

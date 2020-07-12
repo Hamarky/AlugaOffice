@@ -16,6 +16,7 @@
     AJAXUploadImagemProduto();
 });
 
+
 function AJAXUploadImagemProduto() {
     $(".img-upload").click(function () {
         $(this).parent().parent().find(".input-file").click();
@@ -42,7 +43,7 @@ function AJAXUploadImagemProduto() {
     });
 
     $(".input-file").change(function () {
-        
+
         var Binario = $(this)[0].files[0];
         var Formulario = new FormData();
         Formulario.append("file", Binario);
@@ -51,11 +52,9 @@ function AJAXUploadImagemProduto() {
         var Imagem = $(this).parent().find(".img-upload");
         var BtnExcluir = $(this).parent().find(".btn-imagem-excluir");
 
-        
-        Imagem.attr("src", "/img/spinner.gif");
+        Imagem.attr("src", "~/img/spinner.gif");
         Imagem.addClass("thumb");
 
-        
         $.ajax({
             type: "POST",
             url: "/Colaborador/Imagem/Armazenar",

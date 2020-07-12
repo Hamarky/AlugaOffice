@@ -1,13 +1,34 @@
 ﻿@model X.PagedList.IPagedList<AlugaOffice.Models.Colaborador>
 @{
     ViewData["Title"] = "Index";
+    var pesquisa = Context.Request.Query["pesquisa"];
 }
 
 <h1>Colaboradores</h1>
 <hr />
+<div class="row">
+    <aside class="col-sm-6">
+        <div id="code_register_1">
+            <div class="card">
+                <article class="card-body">
+                    <form method="get">
+                        <div class="form-group">
+                            <div class="col-md-5">
+                                <div class=""></div>
+                                <label for="pesquisa">Nome</label>
+                                <input type="search" name="pesquisa" id="pesquisa" value="@pesquisa" class="form-control">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-info" style="padding-left: 20px; padding-right: 20px">Pesquisar</button>
+                        <a class="divisor" role="separator">|</a>
+                        <a asp-action="Cadastrar" class="btn btn-primary" style="padding-left: 20px; padding-right: 20px">Cadastrar</a>
+                    </form>
+                </article>
+            </div>
+        </div>
+    </aside>
+</div>
 
-<a asp-action="Cadastrar" class="btn btn-primary">Cadastrar</a>
-<br />
 <br />
 
 @{await Html.RenderPartialAsync("~/Views/Shared/_Mensagem.cshtml");}
@@ -45,7 +66,7 @@
             </tbody>
         </table>
     </div>
-    @Html.PagedListPager((IPagedList)Model, pagina => Url.Action("Index", new { pagina }))
+    @Html.PagedListPager((IPagedList)Model, pagina => Url.Action("Index", new { pagina = pagina, pesquisa = pesquisa }))
 }
 else
 {

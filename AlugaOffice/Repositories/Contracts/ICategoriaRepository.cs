@@ -16,6 +16,6 @@ namespace AlugaOffice.Repositories.Contracts
         Categoria ObterCategoria(string Slug);
         IEnumerable<Categoria> ObterCategoriasRecursivas(Categoria categoriaPai);
         IEnumerable<Categoria> ObterTodasCategorias();
-        IPagedList<Categoria> ObterTodasCategorias(int? pagina);
+        IPagedList<Categoria> ObterTodasCategorias(int? pagina, string pesquisa);
     }
 }

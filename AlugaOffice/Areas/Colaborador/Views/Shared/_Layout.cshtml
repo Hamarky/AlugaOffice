@@ -45,15 +45,14 @@
     <link href="~/resources/lib/dashboard/dashboard.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+    <nav class="navbar navbar-dark sticky-top bg-dark p-0 shadow">
         <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" asp-action="Painel" asp-controller="Home">AlugaOffice</a>
-        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search">
+
         <ul class="navbar-nav px-3">
-            <li class="nav-item text-nowrap">
-                <a class="nav-link" asp-controller="Home" asp-action="Logout">Sair</a>
+            <li class="nav-item">
+                <label class="btn btn-personalizado">
+                    <a class="nav-link" asp-controller="Home" asp-action="Logout">Sair</a>
+                </label>
             </li>
         </ul>
     </nav>
@@ -62,53 +61,58 @@
         <div class="row">
             <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
                 <div class="sidebar-sticky pt-3">
+
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" asp-action="Painel" asp-controller="Home">
-                                <span data-feather="home"></span>
-                                Painel
-                            </a>
+                            <label class="btn-custom">
+                                <a class="nav-link" asp-action="Painel" asp-controller="Home">
+                                    <span data-feather="home"></span>
+                                    Painel
+                                </a>
+                            </label>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link" asp-action="Index" asp-controller="Categoria">
-                                <span data-feather="file"></span>
-                                Categorias
-                            </a>
+                            <label class="btn-custom">
+                                <a class="nav-link" asp-action="Index" asp-controller="Categoria">
+                                    <span data-feather="file"></span>
+                                    Categorias
+                                </a>
+                            </label>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link" asp-action="Index" asp-controller="Produto">
-                                <span data-feather="shopping-cart"></span>
-                                Produtos
-                            </a>
+                            <label class="btn-custom">
+                                <a class="nav-link" asp-action="Index" asp-controller="Produto">
+                                    <span data-feather="shopping-cart"></span>
+                                    Produtos
+                                </a>
+                            </label>
                         </li>
+
                         @if (colaborador.GetColaborador() != null && colaborador.GetColaborador().Tipo == ColaboradorTipoConstant.Gerente)
                         {
+
                             <li class="nav-item">
-                                <a class="nav-link" asp-action="Index" asp-controller="Colaborador">
-                                    <span data-feather="users"></span>
-                                    Colaborador
-                                </a>
+                                <label class="btn-custom">
+                                    <a class="nav-link" asp-action="Index" asp-controller="Colaborador">
+                                        <span data-feather="users"></span>
+                                        Colaborador
+                                    </a>
+                                </label>
                             </li>
                         }
+
                         <li class="nav-item">
-                            <a class="nav-link" asp-action="Index" asp-controller="Cliente">
-                                <span data-feather="users"></span>
-                                Clientes
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="file"></span>
-                                Pedidos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="bar-chart-2"></span>
-                                Relatorios
-                            </a>
+                            <label class="btn-custom">
+                                <a class="nav-link" asp-action="Index" asp-controller="Cliente">
+                                    <span data-feather="users"></span>
+                                    Clientes
+                                </a>
+                            </label>
                         </li>
                     </ul>
+
                 </div>
             </nav>
 

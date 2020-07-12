@@ -24,9 +24,9 @@ namespace AlugaOffice.Areas.Colaborador.Controllers
             _categoriaRepository = categoriaRepository;
         }
 
-        public IActionResult Index(int? pagina)
+        public IActionResult Index(int? pagina, string pesquisa)
         {
-            var categorias = _categoriaRepository.ObterTodasCategorias(pagina);
+            IPagedList<Categoria> categorias = _categoriaRepository.ObterTodasCategorias(pagina, pesquisa);
             return View(categorias);
         }
 

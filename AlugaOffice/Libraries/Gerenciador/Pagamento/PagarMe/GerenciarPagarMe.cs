@@ -31,7 +31,7 @@ namespace AlugaOffice.Libraries.Gerenciador.Pagamento.PagarMe
 
             Transaction transaction = new Transaction();
 
-            transaction.Amount = Convert.ToInt32(valor);
+            transaction.Amount = Mascara.ConverterValorPagarMe(valor);
             transaction.PaymentMethod = PaymentMethod.Boleto;
 
             transaction.Customer = new Customer
@@ -87,7 +87,7 @@ namespace AlugaOffice.Libraries.Gerenciador.Pagamento.PagarMe
                     Title = item.Nome,
                     Quantity = item.QuantidadeProdutoCarrinho,
                     Tangible = true,
-                    UnitPrice = Mascara.ConverterValorPagarMe(item.Valor)
+                    UnitPrice = Mascara.ConverterValorPagarMe(item.Valor) //Ver aqui
                 };
 
 
@@ -227,7 +227,7 @@ namespace AlugaOffice.Libraries.Gerenciador.Pagamento.PagarMe
 
                 if (i > parcelaPagaVendedor)
                 {
-                    //Juros - i = (4-3 - parcelaPagaVendedor) + 5%
+
                     int quantidadeParcelasComJuros = i - parcelaPagaVendedor;
                     decimal valorDoJuros = valor * juros / 100;
 

@@ -31,7 +31,7 @@ namespace AlugaOffice.Areas.Colaborador.Controllers
         public IActionResult AtivarDesativar(int id)
         {
             Models.Cliente cliente = _clienteRepository.ObterCliente(id);
-            cliente.Situacao = (cliente.Situacao == SituacaoConstant.Ativado) ? cliente.Situacao = SituacaoConstant.Desativado : cliente.Situacao = SituacaoConstant.Desativado;
+            cliente.Situacao = (cliente.Situacao == SituacaoConstant.Ativado) ? cliente.Situacao = SituacaoConstant.Desativado : cliente.Situacao = SituacaoConstant.Ativado;
             _clienteRepository.Atualizar(cliente);
 
             TempData["MSG_S"] = Mensagem.MSG_S001;

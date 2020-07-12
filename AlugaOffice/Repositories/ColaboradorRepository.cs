@@ -75,5 +75,20 @@ namespace AlugaOffice.Repositories
         {
             return _banco.Colaboradores.Where(a => a.Email == email).AsNoTracking().ToList();
         }
+
+        public IPagedList<Colaborador> ObterTodosColaboradores(int? pagina, string pesquisa)
+        {
+            int RegistroPorPagina = _conf.GetValue<int>("RegistroPorPagina");
+
+            int NumeroPagina = pagina ?? 1;
+
+            var bancoColaborado = _banco.Colaboradores.AsQueryable();
+            if (!string.IsNullOrEmpty(pesquisa))
+            {
+                bancoColaborado = bancoColaborado.Where(a => a.Nome.Contains(pesquisa.Trim()) || a.Email.Contains(pesquisa.Trim()));
+            }
+
+            return bancoColaborado.ToPagedList<Colaborador>(NumeroPagina, RegistroPorPagina);
+        }
     }
 }

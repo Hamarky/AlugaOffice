@@ -22,6 +22,7 @@ namespace AlugaOffice.Models
         public decimal ValorTotal { get; set; }
         public string DadosTransaction { get; set; }
         public string DadosProdutos { get; set; }
+
         public DateTime DataRegistro { get; set; }
         public string Situacao { get; set; }
 
